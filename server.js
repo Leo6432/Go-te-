@@ -42,6 +42,72 @@ let autreSeq = 1;
 
 THEMES.forEach(t => { groups[t.id] = { members: [] }; });
 
+// ===== PERSISTANCE (Upstash Redis, optionnelle) =====
+// Si les variables d'env Upstash sont présentes, on sauvegarde/charge l'état
+// dans une base externe pour qu'il survive aux redémarrages. Sinon : mémoire seule.
+const REDIS_URL = process.env.UPSTASH_REDIS_REST_URL;
+const REDIS_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
+const REDIS_KEY = 'gouter:state';
+const persistenceOn = !!(REDIS_URL && REDIS_TOKEN);
+
+async function redisCmd(command) {
+  const res = await fetch(REDIS_URL, {
+    method: 'POST',
+    headers: { Authorization: `Bearer ${REDIS_TOKEN}`, 'Content-Type': 'application/json' },
+    body: JSON.stringify(command),
+  });
+  if (!res.ok) throw new Error(`Redis HTTP ${res.status}`);
+  return (await res.json()).result;
+}
+
+function snapshot() {
+  return {
+    registeredNames: Array.from(registeredNames.entries()),
+    groups,
+    autreGroups,
+    autreSeq,
+  };
+}
+
+function applySnapshot(data) {
+  if (!data) return;
+  registeredNames.clear();
+  (data.registeredNames || []).forEach(([k, v]) => registeredNames.set(k, v));
+  THEMES.forEach(t => { groups[t.id] = { members: (data.groups?.[t.id]?.members) || [] }; });
+  autreGroups = data.autreGroups || [];
+  autreSeq = data.autreSeq || 1;
+  // Tous les inscrits sont hors ligne au démarrage (pas de socket actif)
+  nameToSocket.clear();
+  registeredNames.forEach(displayName => nameToSocket.set(displayName, null));
+}
+
+async function loadState() {
+  if (!persistenceOn) { console.log('💾 Persistance OFF (mémoire seule)'); return; }
+  try {
+    const raw = await redisCmd(['GET', REDIS_KEY]);
+    if (raw) { applySnapshot(JSON.parse(raw)); console.log('💾 État restauré depuis Redis'); }
+    else console.log('💾 Persistance ON (base vide pour l\'instant)');
+  } catch (e) {
+    console.error('⚠️ Échec du chargement Redis :', e.message);
+  }
+}
+
+let saveTimer = null;
+function scheduleSave() {
+  if (!persistenceOn) return;
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(async () => {
+    try { await redisCmd(['SET', REDIS_KEY, JSON.stringify(snapshot())]); }
+    catch (e) { console.error('⚠️ Échec sauvegarde Redis :', e.message); }
+  }, 400);
+}
+
+// Diffuse l'état à tout le monde ET planifie une sauvegarde
+function broadcastState() {
+  io.emit('state', getState());
+  scheduleSave();
+}
+
 function activeCount() {
   let n = 0;
   nameToSocket.forEach(sid => { if (sid) n++; });
@@ -104,7 +170,7 @@ io.on('connection', (socket) => {
     const delegateLabel = DELEGATES[key] || null;
     const isAdmin = key === ADMIN_KEY;
     socket.emit('joined', { name: displayName, delegateLabel, isAdmin });
-    io.emit('state', getState());
+    broadcastState();
   });
 
   // Réservé à l'admin (Léo) : ajouter un élève dans un thème classique
@@ -126,7 +192,7 @@ io.on('connection', (socket) => {
 
     removeFromEverywhere(displayName);
     group.members.push(displayName);
-    io.emit('state', getState());
+    broadcastState();
   });
 
   // Rejoindre un thème classique (boisson, saucisson, gâteau, chips) — illimité
@@ -138,7 +204,7 @@ io.on('connection', (socket) => {
 
     removeFromEverywhere(name);
     group.members.push(name);
-    io.emit('state', getState());
+    broadcastState();
   });
 
   // Créer une entrée "Autre" : 1 personne, avec ce qu'elle apporte
@@ -150,14 +216,14 @@ io.on('connection', (socket) => {
 
     removeFromEverywhere(name);
     autreGroups.push({ id: autreSeq++, item: what, member: name });
-    io.emit('state', getState());
+    broadcastState();
   });
 
   socket.on('leaveGroup', () => {
     const name = socket.data.name;
     if (!name) return;
     removeFromEverywhere(name);
-    io.emit('state', getState());
+    broadcastState();
   });
 
   socket.on('disconnect', () => {
@@ -165,9 +231,26 @@ io.on('connection', (socket) => {
     if (name && nameToSocket.get(name) === socket.id) {
       nameToSocket.set(name, null); // reste inscrit, juste hors ligne
     }
-    io.emit('state', getState());
+    broadcastState();
   });
 });
 
+// Petit endpoint santé pour l'anti-sommeil
+app.get('/ping', (req, res) => res.send('ok'));
+
 const PORT = process.env.PORT || 3000;
-server.listen(PORT, () => console.log(`Serveur lancé sur http://localhost:${PORT}`));
+
+loadState().then(() => {
+  server.listen(PORT, () => console.log(`Serveur lancé sur http://localhost:${PORT}`));
+});
+
+// ===== ANTI-SOMMEIL =====
+// Sur Render gratuit, le serveur s'endort après 15 min d'inactivité.
+// On se ping soi-même toutes les 10 min pour rester éveillé.
+const SELF_URL = process.env.RENDER_EXTERNAL_URL;
+if (SELF_URL) {
+  setInterval(() => {
+    fetch(`${SELF_URL}/ping`).catch(() => {});
+  }, 10 * 60 * 1000);
+  console.log('🟢 Anti-sommeil activé');
+}
