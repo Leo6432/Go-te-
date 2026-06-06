@@ -19,6 +19,15 @@ const THEMES = [
 // "Autre" est spécial : chacun crée sa propre entrée (1 personne) avec ce qu'il apporte
 const AUTRE = { id: 'autre', label: 'Autre', emoji: '✨' };
 
+// Délégués (voient les stats) + leur libellé. Léo est aussi admin (peut ajouter des élèves).
+const DELEGATES = {
+  louna:  'la déléguée',
+  tom:    'le délégué',
+  romane: 'la déléguée',
+  leo:    'le délégué',
+};
+const ADMIN_KEY = 'leo';
+
 // Normalisation : insensible à la casse ET aux accents (Léo == leo == LEO)
 function normalize(str) {
   return str.normalize('NFD').replace(/[̀-ͯ]/g, '').trim().toLowerCase();
@@ -92,7 +101,31 @@ io.on('connection', (socket) => {
     nameToSocket.set(displayName, socket.id);
     socket.data.name = displayName;
 
-    socket.emit('joined', { name: displayName });
+    const delegateLabel = DELEGATES[key] || null;
+    const isAdmin = key === ADMIN_KEY;
+    socket.emit('joined', { name: displayName, delegateLabel, isAdmin });
+    io.emit('state', getState());
+  });
+
+  // Réservé à l'admin (Léo) : ajouter un élève dans un thème classique
+  socket.on('adminAddMember', ({ themeId, name }) => {
+    if (normalize(socket.data.name || '') !== ADMIN_KEY) return;
+    const raw = (name || '').trim();
+    if (!raw) return;
+    const key = normalize(raw);
+    if (!key) return;
+    const group = groups[themeId];
+    if (!group) return;
+
+    let displayName = registeredNames.get(key);
+    if (!displayName) {
+      displayName = raw;
+      registeredNames.set(key, displayName);
+      nameToSocket.set(displayName, null); // inscrit mais hors ligne
+    }
+
+    removeFromEverywhere(displayName);
+    group.members.push(displayName);
     io.emit('state', getState());
   });
 

@@ -512,10 +512,10 @@
   </header>
 
   <div class="dash-content">
-    <h2 class="greeting">Salut <span id="greetName"></span> 👋</h2>
+    <h2 class="greeting" id="greetingLine">Salut <span id="greetName"></span> 👋</h2>
     <p class="greeting-sub">Choisis un groupe à rejoindre.</p>
 
-    <div class="stats-grid">
+    <div class="stats-grid" id="statsGrid" style="display:none;">
       <div class="stat-card">
         <span class="stat-icon">👥</span>
         <div><div class="stat-num" id="statGroups">0</div><div class="stat-label">Groupes</div></div>
@@ -568,6 +568,8 @@ const socket = io();
 let myName = null;
 let myLoc = null;       // { type:'theme'|'autre', id } | null
 let lastState = null;
+let isDelegate = false; // voit les stats du haut
+let isAdmin = false;    // Léo : peut ajouter un élève dans un groupe
 
 // ===== FOND : emojis répartis partout =====
 (function spawnFood() {
@@ -617,9 +619,20 @@ document.getElementById('nameInput').addEventListener('keydown', e => {
   if (e.key === 'Enter') submitName();
 });
 
-socket.on('joined', ({ name }) => {
+socket.on('joined', ({ name, delegateLabel, isAdmin: admin }) => {
   myName = name;
-  document.getElementById('greetName').textContent = name;
+  isDelegate = !!delegateLabel;
+  isAdmin = !!admin;
+
+  // Message d'accueil : les délégués sont salués comme tels
+  const greeting = document.getElementById('greetingLine');
+  greeting.innerHTML = isDelegate
+    ? `Salut ${esc(name)}, ${esc(delegateLabel)} 👋`
+    : `Salut ${esc(name)} 👋`;
+
+  // Les stats du haut ne sont utiles qu'aux délégués
+  document.getElementById('statsGrid').style.display = isDelegate ? 'grid' : 'none';
+
   document.getElementById('headerName').innerHTML = `👋 ${esc(name)}`;
   document.getElementById('landing').style.display = 'none';
   document.getElementById('dashboard').style.display = 'block';
@@ -634,6 +647,8 @@ function logout() {
   // l'élève reste inscrit (dans saucisson, etc.) et le retrouve en remettant son pseudo.
   myName = null;
   myLoc = null;
+  isDelegate = false;
+  isAdmin = false;
   document.getElementById('landing').style.display = 'flex';
   document.getElementById('dashboard').style.display = 'none';
   document.getElementById('nameInput').value = '';
@@ -697,6 +712,11 @@ function render(state) {
       ? `<button class="btn-join leave" onclick="leaveGroup()">← Quitter le groupe</button>`
       : `<button class="btn-join" onclick="joinTheme('${theme.id}')">→ Rejoindre</button>`;
 
+    // Léo (admin) peut ajouter un prénom dans n'importe quel groupe
+    const adminBtn = isAdmin
+      ? `<button class="btn-join" style="background:var(--blue);margin-top:10px;" onclick="askAdminAdd('${theme.id}')">+ Ajouter un élève</button>`
+      : '';
+
     card.innerHTML = `
       <div class="group-deco">${theme.emoji}</div>
       <div class="theme-badge">${theme.emoji} ${theme.label}</div>
@@ -704,6 +724,7 @@ function render(state) {
       <div class="count-pill">👤 ${group.members.length} ${group.members.length > 1 ? 'inscrits' : 'inscrit'}</div>
       <ul class="members-list">${membersHtml}</ul>
       ${btnHtml}
+      ${adminBtn}
     `;
     container.appendChild(card);
   });
@@ -760,6 +781,20 @@ function joinTheme(themeId) {
 
 // Autre : on demande ce qu'on apporte
 let modalMode = null;
+let adminThemeId = null;
+
+// Léo : ajouter un prénom dans un groupe
+function askAdminAdd(themeId) {
+  modalMode = 'admin';
+  adminThemeId = themeId;
+  document.getElementById('modalTitle').textContent = '➕ Ajouter un élève';
+  document.getElementById('modalSub').textContent = 'Quel prénom veux-tu ajouter à ce groupe ?';
+  document.getElementById('modalInput').placeholder = 'Ex: Léa, Tom, Inès...';
+  document.getElementById('modalInput').value = '';
+  document.getElementById('modalOverlay').classList.remove('hidden');
+  setTimeout(() => document.getElementById('modalInput').focus(), 80);
+}
+
 function askAutre() {
   modalMode = 'autre';
   document.getElementById('modalTitle').textContent = '✨ Tu as choisi « Autre »';
@@ -774,6 +809,7 @@ function confirmModal() {
   const val = document.getElementById('modalInput').value.trim();
   if (!val) { showToast('Dis ce que tu apportes !'); return; }
   if (modalMode === 'autre') socket.emit('joinAutre', { item: val });
+  if (modalMode === 'admin') socket.emit('adminAddMember', { themeId: adminThemeId, name: val });
   closeModal();
 }
 
