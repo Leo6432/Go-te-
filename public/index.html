@@ -630,7 +630,8 @@ socket.on('joined', ({ name }) => {
 });
 
 function logout() {
-  socket.emit('leaveGroup');
+  // On revient juste à l'écran d'accueil SANS quitter son groupe :
+  // l'élève reste inscrit (dans saucisson, etc.) et le retrouve en remettant son pseudo.
   myName = null;
   myLoc = null;
   document.getElementById('landing').style.display = 'flex';
