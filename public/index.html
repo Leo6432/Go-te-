@@ -458,6 +458,23 @@
     pointer-events: none;
   }
   .toast.show { opacity: 1; }
+
+  /* Bandeau de connexion */
+  .conn-banner {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 400;
+    background: #d32f2f;
+    color: white;
+    text-align: center;
+    padding: 10px 16px;
+    font-size: 0.85rem;
+    font-weight: 700;
+    transform: translateY(-100%);
+    transition: transform .25s;
+  }
+  .conn-banner.show { transform: translateY(0); }
+
   .hidden { display: none !important; }
 </style>
 </head>
@@ -541,6 +558,7 @@
   </div>
 </div>
 
+<div class="conn-banner" id="connBanner"></div>
 <div class="toast" id="toast"></div>
 
 <script src="/socket.io/socket.io.js"></script>
@@ -568,10 +586,31 @@ let lastState = null;
   }
 })();
 
+// ===== ÉTAT DE CONNEXION =====
+// Quand la connexion s'établit OU se rétablit (reconnexion réseau),
+// on se ré-inscrit automatiquement pour ne jamais perdre sa place.
+socket.on('connect', () => {
+  setConnStatus(true);
+  if (myName) socket.emit('join', { name: myName });
+});
+socket.on('disconnect', () => setConnStatus(false));
+socket.on('connect_error', () => setConnStatus(false));
+
+function setConnStatus(ok) {
+  const b = document.getElementById('connBanner');
+  if (ok) {
+    b.classList.remove('show');
+  } else {
+    b.textContent = '⚠️ Connexion au serveur perdue… reconnexion en cours';
+    b.classList.add('show');
+  }
+}
+
 // ===== CONNEXION =====
 function submitName() {
   const val = document.getElementById('nameInput').value.trim();
   if (!val) { showToast('Entre ton prénom !'); return; }
+  if (!socket.connected) { showToast('Pas de connexion au serveur…'); return; }
   socket.emit('join', { name: val });
 }
 document.getElementById('nameInput').addEventListener('keydown', e => {
@@ -584,7 +623,10 @@ socket.on('joined', ({ name }) => {
   document.getElementById('headerName').innerHTML = `👋 ${esc(name)}`;
   document.getElementById('landing').style.display = 'none';
   document.getElementById('dashboard').style.display = 'block';
-  if (lastState) render(lastState);
+  if (lastState) {
+    recomputeMyLoc(lastState);
+    render(lastState);
+  }
 });
 
 function logout() {
@@ -597,16 +639,20 @@ function logout() {
 }
 
 // ===== STATE =====
+function recomputeMyLoc(state) {
+  myLoc = null;
+  if (!myName) return;
+  state.themes.forEach(t => {
+    if (state.groups[t.id].members.includes(myName)) myLoc = { type: 'theme', id: t.id };
+  });
+  const a = state.autreGroups.find(g => g.member === myName);
+  if (a) myLoc = { type: 'autre', id: a.id };
+}
+
 socket.on('state', (state) => {
   lastState = state;
   if (myName) {
-    // Où suis-je ?
-    myLoc = null;
-    state.themes.forEach(t => {
-      if (state.groups[t.id].members.includes(myName)) myLoc = { type: 'theme', id: t.id };
-    });
-    const a = state.autreGroups.find(g => g.member === myName);
-    if (a) myLoc = { type: 'autre', id: a.id };
+    recomputeMyLoc(state);
     render(state);
   } else {
     document.getElementById('statConnected').textContent = state.connected;
