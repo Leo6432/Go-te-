@@ -28,7 +28,7 @@
     overflow-x: hidden;
   }
 
-  /* ===== ANIMATED BACKGROUND ===== */
+  /* ===== FOND ANIMÉ ===== */
   .bg-canvas {
     position: fixed;
     inset: 0;
@@ -45,10 +45,11 @@
     animation: blobFloat linear infinite;
   }
 
-  .blob1 { width: 420px; height: 420px; background: #ffe0b2; top: -100px; left: -120px; animation-duration: 18s; animation-delay: 0s; }
-  .blob2 { width: 300px; height: 300px; background: #c8e6ff; top: 30%; right: -80px; animation-duration: 22s; animation-delay: -6s; }
-  .blob3 { width: 250px; height: 250px; background: #e8d5ff; bottom: 5%; left: 20%; animation-duration: 15s; animation-delay: -10s; }
-  .blob4 { width: 180px; height: 180px; background: #d4f5d4; top: 55%; left: -60px; animation-duration: 20s; animation-delay: -3s; }
+  .blob1 { width: 420px; height: 420px; background: #ffe0b2; top: -100px; left: -120px; animation-duration: 18s; }
+  .blob2 { width: 300px; height: 300px; background: #c8e6ff; top: 25%; right: -80px; animation-duration: 22s; animation-delay: -6s; }
+  .blob3 { width: 250px; height: 250px; background: #e8d5ff; bottom: 5%; left: 25%; animation-duration: 15s; animation-delay: -10s; }
+  .blob4 { width: 200px; height: 200px; background: #d4f5d4; top: 55%; right: 15%; animation-duration: 20s; animation-delay: -3s; }
+  .blob5 { width: 220px; height: 220px; background: #ffd6e7; bottom: 30%; left: -60px; animation-duration: 24s; animation-delay: -12s; }
 
   @keyframes blobFloat {
     0%   { transform: translate(0, 0) scale(1); }
@@ -60,32 +61,21 @@
 
   .bg-food {
     position: absolute;
-    font-size: 2rem;
-    opacity: 0.12;
+    opacity: 0.14;
     animation: foodFloat linear infinite;
     user-select: none;
   }
 
-  .f1  { top: 8%;  left: 5%;  font-size: 2.2rem; animation-duration: 12s; animation-delay: 0s; }
-  .f2  { top: 15%; right: 8%; font-size: 1.8rem; animation-duration: 16s; animation-delay: -4s; }
-  .f3  { top: 40%; left: 3%;  font-size: 2.5rem; animation-duration: 14s; animation-delay: -7s; }
-  .f4  { top: 60%; right: 5%; font-size: 1.6rem; animation-duration: 18s; animation-delay: -2s; }
-  .f5  { top: 80%; left: 15%; font-size: 2rem;   animation-duration: 11s; animation-delay: -9s; }
-  .f6  { top: 25%; left: 45%; font-size: 1.4rem; animation-duration: 20s; animation-delay: -5s; }
-  .f7  { top: 70%; right: 20%;font-size: 2.2rem; animation-duration: 13s; animation-delay: -1s; }
-  .f8  { top: 90%; right: 35%;font-size: 1.5rem; animation-duration: 17s; animation-delay: -8s; }
-
   @keyframes foodFloat {
     0%   { transform: translateY(0px) rotate(0deg); }
-    33%  { transform: translateY(-18px) rotate(8deg); }
-    66%  { transform: translateY(10px) rotate(-5deg); }
+    33%  { transform: translateY(-22px) rotate(10deg); }
+    66%  { transform: translateY(14px) rotate(-7deg); }
     100% { transform: translateY(0px) rotate(0deg); }
   }
 
   /* ===== LAYOUT ===== */
   #landing, #dashboard { position: relative; z-index: 1; }
 
-  /* ===== LANDING ===== */
   #landing {
     min-height: 100vh;
     display: flex;
@@ -115,7 +105,6 @@
     line-height: 1.15;
     margin-bottom: 16px;
   }
-
   .hero-title span { color: var(--blue); }
 
   .hero-sub {
@@ -135,15 +124,12 @@
     width: 100%;
     max-width: 380px;
   }
-
   .name-card label {
     font-size: 0.85rem;
     font-weight: 700;
-    color: var(--dark);
     display: block;
     margin-bottom: 10px;
   }
-
   .name-card input {
     width: 100%;
     padding: 16px 18px;
@@ -155,7 +141,6 @@
     color: var(--dark);
     background: #fafbff;
   }
-
   .name-card input:focus { border-color: var(--blue); background: white; }
   .name-card input::placeholder { color: #bbb; }
 
@@ -172,7 +157,6 @@
     margin-top: 14px;
     transition: transform .15s, opacity .15s;
   }
-
   .btn-primary:hover { opacity: 0.88; }
   .btn-primary:active { transform: scale(0.97); }
 
@@ -189,9 +173,7 @@
     gap: 10px;
     border-bottom: 1px solid rgba(0,0,0,0.06);
   }
-
   .header-logo { font-size: 1.5rem; }
-
   .event-badge-sm {
     background: #fffbe6;
     border: 1.5px solid #ffd566;
@@ -204,7 +186,6 @@
     align-items: center;
     gap: 6px;
   }
-
   .header-name {
     background: #fff9e6;
     border: 2px solid #ffd566;
@@ -218,7 +199,6 @@
     margin-left: auto;
     white-space: nowrap;
   }
-
   .icon-btn {
     width: 40px;
     height: 40px;
@@ -236,21 +216,17 @@
 
   /* ===== DASHBOARD ===== */
   #dashboard { display: none; }
-
   .dash-content {
     padding: 24px 20px 100px;
     max-width: 480px;
     margin: 0 auto;
   }
-
   .greeting {
     font-size: 2rem;
     font-weight: 900;
     margin-bottom: 6px;
   }
-
   .greeting span { color: var(--blue); }
-
   .greeting-sub {
     color: #666;
     font-size: 1rem;
@@ -265,7 +241,6 @@
     gap: 12px;
     margin-bottom: 32px;
   }
-
   .stat-card {
     background: white;
     border-radius: 16px;
@@ -275,15 +250,8 @@
     gap: 12px;
     box-shadow: var(--shadow);
   }
-
   .stat-icon { font-size: 1.8rem; flex-shrink: 0; }
-
-  .stat-num {
-    font-size: 1.7rem;
-    font-weight: 900;
-    line-height: 1;
-  }
-
+  .stat-num { font-size: 1.7rem; font-weight: 900; line-height: 1; }
   .stat-label {
     font-size: 0.62rem;
     font-weight: 700;
@@ -314,18 +282,10 @@
     box-shadow: var(--shadow);
     transition: opacity .2s;
   }
-
-  .group-card.full {
-    opacity: 0.6;
-    border-color: #ddd;
-    background: #f9f9f9;
-  }
-
   .group-card.mine {
     border-color: var(--blue);
     background: #f0f4ff;
   }
-
   .theme-badge {
     display: inline-flex;
     align-items: center;
@@ -341,7 +301,6 @@
     text-transform: uppercase;
     margin-bottom: 12px;
   }
-
   .group-deco {
     position: absolute;
     top: -6px;
@@ -350,7 +309,6 @@
     opacity: 0.15;
     pointer-events: none;
   }
-
   .group-name {
     font-size: 1.45rem;
     font-weight: 900;
@@ -358,19 +316,13 @@
     color: var(--dark);
     padding-right: 40px;
   }
-
   .count-pill {
     font-size: 0.85rem;
     font-weight: 700;
     color: #888;
     margin-bottom: 12px;
   }
-
-  .members-list {
-    list-style: none;
-    margin-bottom: 18px;
-  }
-
+  .members-list { list-style: none; margin-bottom: 18px; }
   .member-row {
     display: flex;
     align-items: center;
@@ -380,25 +332,12 @@
     font-weight: 700;
     color: var(--dark);
   }
-
   .member-row.empty {
     font-style: italic;
     color: #c0c0c0;
     font-weight: 400;
     font-size: 0.95rem;
   }
-
-  .chef-badge {
-    font-size: 0.63rem;
-    font-weight: 800;
-    color: var(--orange);
-    letter-spacing: 0.8px;
-    text-transform: uppercase;
-    background: #ffe4cc;
-    border-radius: 999px;
-    padding: 2px 8px;
-  }
-
   .btn-join {
     width: 100%;
     padding: 16px;
@@ -415,20 +354,26 @@
     gap: 8px;
     transition: transform .15s, opacity .15s;
   }
-
   .btn-join:hover { opacity: 0.9; }
   .btn-join:active { transform: scale(0.97); }
+  .btn-join.leave { background: #e5e5ea; color: #555; }
 
-  .btn-join.leave {
-    background: #e5e5ea;
-    color: #555;
+  /* carte "Autre" individuelle */
+  .autre-entry {
+    background: white;
+    border: 2px solid #e0e0e8;
+    border-radius: 16px;
+    padding: 14px 18px;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
   }
-
-  .btn-join:disabled {
-    background: #d0d0d5;
-    cursor: not-allowed;
-    opacity: 0.7;
-  }
+  .autre-entry.mine { border-color: var(--blue); background: #f0f4ff; }
+  .autre-entry .ae-emoji { font-size: 1.4rem; }
+  .autre-entry .ae-text { flex: 1; }
+  .autre-entry .ae-item { font-weight: 800; font-size: 1.05rem; }
+  .autre-entry .ae-who { font-size: 0.82rem; color: #888; font-weight: 600; }
 
   /* ===== MODAL ===== */
   .modal-overlay {
@@ -441,7 +386,6 @@
     justify-content: center;
     padding: 0 0 20px;
   }
-
   .modal-sheet {
     background: white;
     border-radius: 24px 24px 16px 16px;
@@ -450,26 +394,12 @@
     max-width: 480px;
     animation: slideUp .25s ease;
   }
-
   @keyframes slideUp {
     from { transform: translateY(80px); opacity: 0; }
     to   { transform: translateY(0);    opacity: 1; }
   }
-
-  .modal-title {
-    font-size: 1.2rem;
-    font-weight: 900;
-    margin-bottom: 6px;
-    text-align: center;
-  }
-
-  .modal-sub {
-    text-align: center;
-    color: #777;
-    font-size: 0.88rem;
-    margin-bottom: 18px;
-  }
-
+  .modal-title { font-size: 1.2rem; font-weight: 900; margin-bottom: 6px; text-align: center; }
+  .modal-sub { text-align: center; color: #777; font-size: 0.88rem; margin-bottom: 18px; }
   .modal-input {
     width: 100%;
     padding: 16px 18px;
@@ -482,46 +412,21 @@
     transition: border-color .2s;
     background: #fafbff;
   }
-
   .modal-input:focus { border-color: var(--blue); background: white; }
-
   .modal-btns { display: flex; gap: 10px; }
-
   .btn-cancel {
-    flex: 1;
-    padding: 16px;
-    background: #f0f0f5;
-    color: #555;
-    border: none;
-    border-radius: 50px;
-    font-size: 1rem;
-    font-weight: 700;
-    cursor: pointer;
+    flex: 1; padding: 16px; background: #f0f0f5; color: #555;
+    border: none; border-radius: 50px; font-size: 1rem; font-weight: 700; cursor: pointer;
   }
-
   .btn-confirm {
-    flex: 2;
-    padding: 16px;
-    background: var(--orange);
-    color: white;
-    border: none;
-    border-radius: 50px;
-    font-size: 1rem;
-    font-weight: 700;
-    cursor: pointer;
+    flex: 2; padding: 16px; background: var(--orange); color: white;
+    border: none; border-radius: 50px; font-size: 1rem; font-weight: 700; cursor: pointer;
     transition: opacity .15s;
   }
-
   .btn-confirm:hover { opacity: 0.9; }
 
   /* ===== STUDENTS ===== */
-  .students-grid {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-bottom: 32px;
-  }
-
+  .students-grid { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 32px; }
   .student-chip {
     background: white;
     border: 2px solid #e5e5ea;
@@ -532,12 +437,7 @@
     color: var(--dark);
     box-shadow: 0 2px 8px rgba(0,0,0,0.05);
   }
-
-  .student-chip.me {
-    border-color: var(--blue);
-    color: var(--blue);
-    background: #f0f4ff;
-  }
+  .student-chip.me { border-color: var(--blue); color: var(--blue); background: #f0f4ff; }
 
   /* ===== TOAST ===== */
   .toast {
@@ -557,28 +457,19 @@
     white-space: nowrap;
     pointer-events: none;
   }
-
   .toast.show { opacity: 1; }
-
   .hidden { display: none !important; }
 </style>
 </head>
 <body>
 
 <!-- Fond animé -->
-<div class="bg-canvas">
+<div class="bg-canvas" id="bgCanvas">
   <div class="bg-blob blob1"></div>
   <div class="bg-blob blob2"></div>
   <div class="bg-blob blob3"></div>
   <div class="bg-blob blob4"></div>
-  <div class="bg-food f1">🥨</div>
-  <div class="bg-food f2">🎂</div>
-  <div class="bg-food f3">🥤</div>
-  <div class="bg-food f4">🥖</div>
-  <div class="bg-food f5">🎉</div>
-  <div class="bg-food f6">✨</div>
-  <div class="bg-food f7">🧃</div>
-  <div class="bg-food f8">🍰</div>
+  <div class="bg-blob blob5"></div>
 </div>
 
 <!-- ===== LANDING ===== -->
@@ -610,51 +501,42 @@
     <div class="stats-grid">
       <div class="stat-card">
         <span class="stat-icon">👥</span>
-        <div>
-          <div class="stat-num" id="statGroups">0</div>
-          <div class="stat-label">Groupes</div>
-        </div>
+        <div><div class="stat-num" id="statGroups">0</div><div class="stat-label">Groupes</div></div>
       </div>
       <div class="stat-card">
         <span class="stat-icon">🙋</span>
-        <div>
-          <div class="stat-num" id="statStudents">0</div>
-          <div class="stat-label">Élèves inscrits</div>
-        </div>
+        <div><div class="stat-num" id="statStudents">0</div><div class="stat-label">Élèves inscrits</div></div>
       </div>
       <div class="stat-card">
-        <span class="stat-icon">✨</span>
-        <div>
-          <div class="stat-num" id="statSpots">0</div>
-          <div class="stat-label">Places libres</div>
-        </div>
+        <span class="stat-icon">🍽️</span>
+        <div><div class="stat-num" id="statInGroup">0</div><div class="stat-label">Dans un groupe</div></div>
       </div>
       <div class="stat-card">
         <span class="stat-icon">🎈</span>
-        <div>
-          <div class="stat-num" id="statConnected">0</div>
-          <div class="stat-label">Connectés</div>
-        </div>
+        <div><div class="stat-num" id="statConnected">0</div><div class="stat-label">Connectés</div></div>
       </div>
     </div>
 
     <div class="section-title">🥳 Les groupes</div>
     <div id="groupsContainer"></div>
 
+    <div class="section-title">✨ Autre — ce que chacun apporte</div>
+    <div id="autreContainer"></div>
+
     <div class="section-title">👥 Tous les inscrits</div>
     <div class="students-grid" id="studentsGrid"></div>
   </div>
 </section>
 
-<!-- ===== MODAL NOM DU GROUPE ===== -->
+<!-- ===== MODAL ===== -->
 <div class="modal-overlay hidden" id="modalOverlay">
   <div class="modal-sheet">
-    <div class="modal-title" id="modalTitle">Rejoindre le groupe</div>
-    <p class="modal-sub" id="modalSub">Tu es le premier ! Donne un nom à ton groupe.</p>
-    <input class="modal-input" id="modalInput" type="text" maxlength="40" />
+    <div class="modal-title" id="modalTitle"></div>
+    <p class="modal-sub" id="modalSub"></p>
+    <input class="modal-input" id="modalInput" type="text" maxlength="50" />
     <div class="modal-btns">
       <button class="btn-cancel" onclick="closeModal()">Annuler</button>
-      <button class="btn-confirm" onclick="confirmJoin()">→ Rejoindre</button>
+      <button class="btn-confirm" onclick="confirmModal()">→ Valider</button>
     </div>
   </div>
 </div>
@@ -666,9 +548,25 @@
 const socket = io();
 
 let myName = null;
-let myTheme = null;
-let pendingTheme = null;
+let myLoc = null;       // { type:'theme'|'autre', id } | null
 let lastState = null;
+
+// ===== FOND : emojis répartis partout =====
+(function spawnFood() {
+  const foods = ['🥨','🎂','🥤','🥖','🎉','✨','🧃','🍰','🍪','🍩','🍫','🍬','🥐','🧁','🍭','🍇','🥪','🍓'];
+  const canvas = document.getElementById('bgCanvas');
+  for (let i = 0; i < 22; i++) {
+    const el = document.createElement('div');
+    el.className = 'bg-food';
+    el.textContent = foods[i % foods.length];
+    el.style.top = (Math.random() * 96) + '%';
+    el.style.left = (Math.random() * 96) + '%';
+    el.style.fontSize = (1.2 + Math.random() * 1.6).toFixed(2) + 'rem';
+    el.style.animationDuration = (10 + Math.random() * 14).toFixed(1) + 's';
+    el.style.animationDelay = '-' + (Math.random() * 12).toFixed(1) + 's';
+    canvas.appendChild(el);
+  }
+})();
 
 // ===== CONNEXION =====
 function submitName() {
@@ -676,7 +574,6 @@ function submitName() {
   if (!val) { showToast('Entre ton prénom !'); return; }
   socket.emit('join', { name: val });
 }
-
 document.getElementById('nameInput').addEventListener('keydown', e => {
   if (e.key === 'Enter') submitName();
 });
@@ -684,7 +581,7 @@ document.getElementById('nameInput').addEventListener('keydown', e => {
 socket.on('joined', ({ name }) => {
   myName = name;
   document.getElementById('greetName').textContent = name;
-  document.getElementById('headerName').innerHTML = `👋 ${name}`;
+  document.getElementById('headerName').innerHTML = `👋 ${esc(name)}`;
   document.getElementById('landing').style.display = 'none';
   document.getElementById('dashboard').style.display = 'block';
   if (lastState) render(lastState);
@@ -693,7 +590,7 @@ socket.on('joined', ({ name }) => {
 function logout() {
   socket.emit('leaveGroup');
   myName = null;
-  myTheme = null;
+  myLoc = null;
   document.getElementById('landing').style.display = 'flex';
   document.getElementById('dashboard').style.display = 'none';
   document.getElementById('nameInput').value = '';
@@ -702,16 +599,16 @@ function logout() {
 // ===== STATE =====
 socket.on('state', (state) => {
   lastState = state;
-
   if (myName) {
-    // Recalcule dans quel groupe je suis
-    myTheme = null;
+    // Où suis-je ?
+    myLoc = null;
     state.themes.forEach(t => {
-      if (state.groups[t.id].members.includes(myName)) myTheme = t.id;
+      if (state.groups[t.id].members.includes(myName)) myLoc = { type: 'theme', id: t.id };
     });
+    const a = state.autreGroups.find(g => g.member === myName);
+    if (a) myLoc = { type: 'autre', id: a.id };
     render(state);
   } else {
-    // Même sans être connecté, on peut mettre à jour les stats
     document.getElementById('statConnected').textContent = state.connected;
   }
 });
@@ -720,65 +617,84 @@ socket.on('groupError', ({ message }) => showToast(message));
 
 // ===== RENDU =====
 function render(state) {
-  const activeGroups = Object.values(state.groups).filter(g => g.members.length > 0).length;
-  document.getElementById('statGroups').textContent = activeGroups;
+  // Stats
+  const activeThemes = state.themes.filter(t => state.groups[t.id].members.length > 0).length;
+  const totalGroups = activeThemes + state.autreGroups.length;
+  const inGroup = state.themes.reduce((a, t) => a + state.groups[t.id].members.length, 0) + state.autreGroups.length;
+
+  document.getElementById('statGroups').textContent = totalGroups;
   document.getElementById('statStudents').textContent = state.students.length;
-  document.getElementById('statSpots').textContent = state.totalSpots - state.takenSpots;
+  document.getElementById('statInGroup').textContent = inGroup;
   document.getElementById('statConnected').textContent = state.connected;
 
-  // Groupes
+  // Thèmes classiques (illimité)
   const container = document.getElementById('groupsContainer');
   container.innerHTML = '';
-
   state.themes.forEach(theme => {
     const group = state.groups[theme.id];
-    const isFull = group.members.length >= 3;
-    const isMine = myTheme === theme.id;
-    const inAGroup = myTheme !== null;
+    const isMine = myLoc && myLoc.type === 'theme' && myLoc.id === theme.id;
 
     const card = document.createElement('div');
-    card.className = 'group-card' + (isFull && !isMine ? ' full' : '') + (isMine ? ' mine' : '');
+    card.className = 'group-card' + (isMine ? ' mine' : '');
 
-    const groupName = group.name || `Équipe ${theme.label}`;
-
-    // 3 rangs membres
     let membersHtml = '';
-    for (let i = 0; i < 3; i++) {
-      if (group.members[i]) {
-        const isChef = i === 0;
-        membersHtml += `
-          <li class="member-row">
-            <span>${isChef ? '👑' : '•'}</span>
-            <span>${esc(group.members[i])}</span>
-            ${isChef ? '<span class="chef-badge">CHEF</span>' : ''}
-          </li>`;
-      } else {
-        membersHtml += `<li class="member-row empty"><span>Place libre...</span></li>`;
-      }
+    if (group.members.length === 0) {
+      membersHtml = `<li class="member-row empty"><span>Personne pour l'instant...</span></li>`;
+    } else {
+      group.members.forEach(m => {
+        membersHtml += `<li class="member-row"><span>•</span><span>${esc(m)}</span></li>`;
+      });
     }
 
-    let btnHtml = '';
-    if (isMine) {
-      btnHtml = `<button class="btn-join leave" onclick="leaveGroup()">← Quitter le groupe</button>`;
-    } else if (isFull) {
-      btnHtml = `<button class="btn-join" disabled>Groupe complet</button>`;
-    } else {
-      const label = inAGroup ? '→ Changer de groupe' : '→ Rejoindre';
-      btnHtml = `<button class="btn-join" onclick="askJoin('${theme.id}', ${group.members.length === 0})">${label}</button>`;
-    }
+    const btnHtml = isMine
+      ? `<button class="btn-join leave" onclick="leaveGroup()">← Quitter le groupe</button>`
+      : `<button class="btn-join" onclick="joinTheme('${theme.id}')">→ Rejoindre</button>`;
 
     card.innerHTML = `
       <div class="group-deco">${theme.emoji}</div>
       <div class="theme-badge">${theme.emoji} ${theme.label}</div>
-      <div class="group-name">${esc(groupName)}</div>
-      <div class="count-pill">👤 ${group.members.length}/3</div>
+      <div class="group-name">${theme.label}</div>
+      <div class="count-pill">👤 ${group.members.length} ${group.members.length > 1 ? 'inscrits' : 'inscrit'}</div>
       <ul class="members-list">${membersHtml}</ul>
       ${btnHtml}
     `;
     container.appendChild(card);
   });
 
-  // Élèves inscrits
+  // Section "Autre" : entrées individuelles + bouton d'ajout
+  const ac = document.getElementById('autreContainer');
+  ac.innerHTML = '';
+  state.autreGroups.forEach(g => {
+    const mine = g.member === myName;
+    const row = document.createElement('div');
+    row.className = 'autre-entry' + (mine ? ' mine' : '');
+    row.innerHTML = `
+      <span class="ae-emoji">${state.autre.emoji}</span>
+      <div class="ae-text">
+        <div class="ae-item">${esc(g.item)}</div>
+        <div class="ae-who">apporté par ${esc(g.member)}</div>
+      </div>
+      ${mine ? `<button class="icon-btn" title="Retirer" onclick="leaveGroup()">✕</button>` : ''}
+    `;
+    ac.appendChild(row);
+  });
+  const addCard = document.createElement('div');
+  addCard.className = 'group-card';
+  const isMineAutre = myLoc && myLoc.type === 'autre';
+  addCard.innerHTML = `
+    <div class="group-deco">${state.autre.emoji}</div>
+    <div class="theme-badge">${state.autre.emoji} ${state.autre.label}</div>
+    <div class="group-name">Autre chose ?</div>
+    <p style="color:#777;font-size:0.9rem;margin-bottom:14px;line-height:1.5;">
+      Tu apportes quelque chose qui n'est pas dans les thèmes ? Ajoute-le ici (juste toi).
+    </p>
+    ${isMineAutre
+      ? `<button class="btn-join leave" onclick="leaveGroup()">← Retirer mon apport</button>`
+      : `<button class="btn-join" onclick="askAutre()">+ Ajouter mon apport</button>`}
+  `;
+  ac.appendChild(addCard);
+
+  // Inscrits
   const grid = document.getElementById('studentsGrid');
   grid.innerHTML = '';
   state.students.forEach(name => {
@@ -789,43 +705,41 @@ function render(state) {
   });
 }
 
-// ===== REJOINDRE =====
-function askJoin(themeId, isFirst) {
-  pendingTheme = themeId;
-  if (isFirst) {
-    const theme = lastState.themes.find(t => t.id === themeId);
-    document.getElementById('modalTitle').textContent = `Rejoindre ${theme.label} 🎉`;
-    document.getElementById('modalSub').textContent = 'Tu es le premier ! Donne un nom à ton groupe.';
-    document.getElementById('modalInput').placeholder = `Ex: Team ${theme.label}, Les Rois...`;
-    document.getElementById('modalInput').value = '';
-    document.getElementById('modalOverlay').classList.remove('hidden');
-    setTimeout(() => document.getElementById('modalInput').focus(), 80);
-  } else {
-    socket.emit('joinGroup', { themeId, groupName: null });
-    pendingTheme = null;
-  }
+// ===== ACTIONS =====
+// Thème classique : pas de nom à choisir, on rejoint direct
+function joinTheme(themeId) {
+  socket.emit('joinTheme', { themeId });
 }
 
-function confirmJoin() {
-  const name = document.getElementById('modalInput').value.trim();
-  if (!name) { showToast('Donne un nom au groupe !'); return; }
-  socket.emit('joinGroup', { themeId: pendingTheme, groupName: name });
+// Autre : on demande ce qu'on apporte
+let modalMode = null;
+function askAutre() {
+  modalMode = 'autre';
+  document.getElementById('modalTitle').textContent = '✨ Tu as choisi « Autre »';
+  document.getElementById('modalSub').textContent = "Qu'est-ce que tu vas acheter / apporter ?";
+  document.getElementById('modalInput').placeholder = 'Ex: Bonbons, Jus de pomme, Cookies...';
+  document.getElementById('modalInput').value = '';
+  document.getElementById('modalOverlay').classList.remove('hidden');
+  setTimeout(() => document.getElementById('modalInput').focus(), 80);
+}
+
+function confirmModal() {
+  const val = document.getElementById('modalInput').value.trim();
+  if (!val) { showToast('Dis ce que tu apportes !'); return; }
+  if (modalMode === 'autre') socket.emit('joinAutre', { item: val });
   closeModal();
 }
 
 function closeModal() {
   document.getElementById('modalOverlay').classList.add('hidden');
-  pendingTheme = null;
+  modalMode = null;
 }
-
 document.getElementById('modalInput').addEventListener('keydown', e => {
-  if (e.key === 'Enter') confirmJoin();
+  if (e.key === 'Enter') confirmModal();
   if (e.key === 'Escape') closeModal();
 });
 
-function leaveGroup() {
-  socket.emit('leaveGroup');
-}
+function leaveGroup() { socket.emit('leaveGroup'); }
 
 // ===== UTILS =====
 function showToast(msg) {
@@ -835,7 +749,6 @@ function showToast(msg) {
   clearTimeout(t._timer);
   t._timer = setTimeout(() => t.classList.remove('show'), 2500);
 }
-
 function esc(str) {
   return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }

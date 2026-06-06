@@ -9,24 +9,29 @@ const io = new Server(server);
 
 app.use(express.static(path.join(__dirname, 'public')));
 
+// 4 thèmes "classiques" : nom = thème, sans limite de places
 const THEMES = [
   { id: 'boisson',   label: 'Boisson',   emoji: '🥤' },
   { id: 'saucisson', label: 'Saucisson', emoji: '🥖' },
   { id: 'gateau',    label: 'Gâteau',    emoji: '🎂' },
   { id: 'chips',     label: 'Chips',     emoji: '🥨' },
-  { id: 'autre',     label: 'Autre',     emoji: '✨' },
 ];
+// "Autre" est spécial : chacun crée sa propre entrée (1 personne) avec ce qu'il apporte
+const AUTRE = { id: 'autre', label: 'Autre', emoji: '✨' };
 
-const MAX_MEMBERS = 3;
+// Normalisation : insensible à la casse ET aux accents (Léo == leo == LEO)
+function normalize(str) {
+  return str.normalize('NFD').replace(/[̀-ͯ]/g, '').trim().toLowerCase();
+}
 
-// Persistent state (by name, not socketId)
-const registeredNames = new Set();        // all students who ever joined
-const nameToSocket = new Map();           // name -> active socketId (or null)
-const groups = {};                        // themeId -> { name, members: [studentName] }
+// ===== ÉTAT =====
+const registeredNames = new Map();   // normalized -> displayName
+const nameToSocket = new Map();      // displayName -> socketId | null
+const groups = {};                   // themeId -> { members: [displayName] }
+let autreGroups = [];                // [{ id, item, member: displayName }]
+let autreSeq = 1;
 
-THEMES.forEach(t => {
-  groups[t.id] = { name: null, members: [] };
-});
+THEMES.forEach(t => { groups[t.id] = { members: [] }; });
 
 function activeCount() {
   let n = 0;
@@ -34,89 +39,98 @@ function activeCount() {
   return n;
 }
 
+function removeFromEverywhere(name) {
+  THEMES.forEach(t => {
+    groups[t.id].members = groups[t.id].members.filter(m => m !== name);
+  });
+  autreGroups = autreGroups.filter(g => g.member !== name);
+}
+
+function findMyLocation(name) {
+  for (const t of THEMES) {
+    if (groups[t.id].members.includes(name)) return { type: 'theme', id: t.id };
+  }
+  const a = autreGroups.find(g => g.member === name);
+  if (a) return { type: 'autre', id: a.id };
+  return null;
+}
+
 function getState() {
-  const takenSpots = Object.values(groups).reduce((a, g) => a + g.members.length, 0);
   return {
     themes: THEMES,
+    autre: AUTRE,
     groups,
-    students: Array.from(registeredNames),
+    autreGroups,
+    students: Array.from(registeredNames.values()),
     connected: activeCount(),
-    totalSpots: THEMES.length * MAX_MEMBERS,
-    takenSpots,
   };
 }
 
 io.on('connection', (socket) => {
-  // Send current state to newcomer
   socket.emit('state', getState());
 
   socket.on('join', ({ name }) => {
-    const trimmed = name.trim();
-    if (!trimmed) return;
+    const raw = (name || '').trim();
+    if (!raw) return;
+    const key = normalize(raw);
+    if (!key) return;
 
-    // Case-insensitive duplicate check — find canonical name
-    let canonical = trimmed;
-    for (const n of registeredNames) {
-      if (n.toLowerCase() === trimmed.toLowerCase()) { canonical = n; break; }
+    // Reconnaît un élève déjà inscrit (même sans accent / majuscule)
+    let displayName = registeredNames.get(key);
+    if (!displayName) {
+      displayName = raw;
+      registeredNames.set(key, displayName);
     }
 
-    // Mark old socket as gone if different
-    if (nameToSocket.has(canonical)) {
-      const oldSid = nameToSocket.get(canonical);
-      if (oldSid && oldSid !== socket.id) {
-        // Disconnect old socket gracefully
-        const oldSocket = io.sockets.sockets.get(oldSid);
-        if (oldSocket) oldSocket.disconnect(true);
-      }
+    // Déconnecte l'ancien onglet de ce même élève
+    const oldSid = nameToSocket.get(displayName);
+    if (oldSid && oldSid !== socket.id) {
+      const oldSocket = io.sockets.sockets.get(oldSid);
+      if (oldSocket) oldSocket.disconnect(true);
     }
 
-    registeredNames.add(canonical);
-    nameToSocket.set(canonical, socket.id);
-    socket.data.name = canonical;
+    nameToSocket.set(displayName, socket.id);
+    socket.data.name = displayName;
 
-    socket.emit('joined', { name: canonical });
+    socket.emit('joined', { name: displayName });
     io.emit('state', getState());
   });
 
-  socket.on('joinGroup', ({ themeId, groupName }) => {
+  // Rejoindre un thème classique (boisson, saucisson, gâteau, chips) — illimité
+  socket.on('joinTheme', ({ themeId }) => {
     const name = socket.data.name;
     if (!name) return;
-
     const group = groups[themeId];
     if (!group) return;
 
-    // Remove from any existing group
-    Object.values(groups).forEach(g => {
-      g.members = g.members.filter(m => m !== name);
-      if (g.members.length === 0) g.name = null;
-    });
-
-    if (group.members.length >= MAX_MEMBERS) {
-      socket.emit('groupError', { message: 'Ce groupe est complet !' });
-      return;
-    }
-
-    if (group.members.length === 0 && groupName && groupName.trim()) {
-      group.name = groupName.trim();
-    }
-
+    removeFromEverywhere(name);
     group.members.push(name);
+    io.emit('state', getState());
+  });
+
+  // Créer une entrée "Autre" : 1 personne, avec ce qu'elle apporte
+  socket.on('joinAutre', ({ item }) => {
+    const name = socket.data.name;
+    if (!name) return;
+    const what = (item || '').trim();
+    if (!what) { socket.emit('groupError', { message: 'Dis ce que tu apportes !' }); return; }
+
+    removeFromEverywhere(name);
+    autreGroups.push({ id: autreSeq++, item: what, member: name });
     io.emit('state', getState());
   });
 
   socket.on('leaveGroup', () => {
     const name = socket.data.name;
-    Object.values(groups).forEach(g => {
-      g.members = g.members.filter(m => m !== name);
-      if (g.members.length === 0) g.name = null;
-    });
+    if (!name) return;
+    removeFromEverywhere(name);
     io.emit('state', getState());
   });
 
   socket.on('disconnect', () => {
     const name = socket.data.name;
     if (name && nameToSocket.get(name) === socket.id) {
-      nameToSocket.set(name, null); // keep in list, just mark offline
+      nameToSocket.set(name, null); // reste inscrit, juste hors ligne
     }
     io.emit('state', getState());
   });
