@@ -25,16 +25,73 @@
     background: var(--bg);
     min-height: 100vh;
     color: var(--dark);
+    overflow-x: hidden;
   }
+
+  /* ===== ANIMATED BACKGROUND ===== */
+  .bg-canvas {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+    overflow: hidden;
+  }
+
+  .bg-blob {
+    position: absolute;
+    border-radius: 50%;
+    filter: blur(60px);
+    opacity: 0.35;
+    animation: blobFloat linear infinite;
+  }
+
+  .blob1 { width: 420px; height: 420px; background: #ffe0b2; top: -100px; left: -120px; animation-duration: 18s; animation-delay: 0s; }
+  .blob2 { width: 300px; height: 300px; background: #c8e6ff; top: 30%; right: -80px; animation-duration: 22s; animation-delay: -6s; }
+  .blob3 { width: 250px; height: 250px; background: #e8d5ff; bottom: 5%; left: 20%; animation-duration: 15s; animation-delay: -10s; }
+  .blob4 { width: 180px; height: 180px; background: #d4f5d4; top: 55%; left: -60px; animation-duration: 20s; animation-delay: -3s; }
+
+  @keyframes blobFloat {
+    0%   { transform: translate(0, 0) scale(1); }
+    25%  { transform: translate(30px, -20px) scale(1.04); }
+    50%  { transform: translate(10px, 30px) scale(0.97); }
+    75%  { transform: translate(-20px, 10px) scale(1.02); }
+    100% { transform: translate(0, 0) scale(1); }
+  }
+
+  .bg-food {
+    position: absolute;
+    font-size: 2rem;
+    opacity: 0.12;
+    animation: foodFloat linear infinite;
+    user-select: none;
+  }
+
+  .f1  { top: 8%;  left: 5%;  font-size: 2.2rem; animation-duration: 12s; animation-delay: 0s; }
+  .f2  { top: 15%; right: 8%; font-size: 1.8rem; animation-duration: 16s; animation-delay: -4s; }
+  .f3  { top: 40%; left: 3%;  font-size: 2.5rem; animation-duration: 14s; animation-delay: -7s; }
+  .f4  { top: 60%; right: 5%; font-size: 1.6rem; animation-duration: 18s; animation-delay: -2s; }
+  .f5  { top: 80%; left: 15%; font-size: 2rem;   animation-duration: 11s; animation-delay: -9s; }
+  .f6  { top: 25%; left: 45%; font-size: 1.4rem; animation-duration: 20s; animation-delay: -5s; }
+  .f7  { top: 70%; right: 20%;font-size: 2.2rem; animation-duration: 13s; animation-delay: -1s; }
+  .f8  { top: 90%; right: 35%;font-size: 1.5rem; animation-duration: 17s; animation-delay: -8s; }
+
+  @keyframes foodFloat {
+    0%   { transform: translateY(0px) rotate(0deg); }
+    33%  { transform: translateY(-18px) rotate(8deg); }
+    66%  { transform: translateY(10px) rotate(-5deg); }
+    100% { transform: translateY(0px) rotate(0deg); }
+  }
+
+  /* ===== LAYOUT ===== */
+  #landing, #dashboard { position: relative; z-index: 1; }
 
   /* ===== LANDING ===== */
   #landing {
     min-height: 100vh;
-    background: linear-gradient(180deg, #f0f4ff 0%, #fff 60%);
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 40px 24px 60px;
+    padding: 48px 24px 60px;
   }
 
   .event-badge {
@@ -45,14 +102,14 @@
     font-size: 14px;
     font-weight: 600;
     color: #7a5c00;
-    display: flex;
+    display: inline-flex;
     align-items: center;
     gap: 8px;
-    margin-bottom: 32px;
+    margin-bottom: 36px;
   }
 
   .hero-title {
-    font-size: 2.4rem;
+    font-size: 2.6rem;
     font-weight: 900;
     text-align: center;
     line-height: 1.15;
@@ -65,29 +122,10 @@
     font-size: 1.05rem;
     color: #555;
     text-align: center;
-    max-width: 320px;
-    line-height: 1.6;
-    margin-bottom: 36px;
+    max-width: 300px;
+    line-height: 1.65;
+    margin-bottom: 40px;
   }
-
-  .food-img {
-    position: absolute;
-    font-size: 2.5rem;
-    user-select: none;
-  }
-
-  .hero-wrap {
-    position: relative;
-    width: 100%;
-    max-width: 380px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-
-  .deco-pretzel { top: -10px; left: -10px; }
-  .deco-cake { top: -10px; right: -10px; }
-  .deco-juice { bottom: -10px; left: 0; }
 
   .name-card {
     background: white;
@@ -115,10 +153,11 @@
     outline: none;
     transition: border-color .2s;
     color: var(--dark);
+    background: #fafbff;
   }
 
-  .name-card input:focus { border-color: var(--blue); }
-  .name-card input::placeholder { color: #aaa; }
+  .name-card input:focus { border-color: var(--blue); background: white; }
+  .name-card input::placeholder { color: #bbb; }
 
   .btn-primary {
     width: 100%;
@@ -131,44 +170,58 @@
     font-weight: 700;
     cursor: pointer;
     margin-top: 14px;
-    letter-spacing: 0.3px;
     transition: transform .15s, opacity .15s;
   }
 
+  .btn-primary:hover { opacity: 0.88; }
   .btn-primary:active { transform: scale(0.97); }
-  .btn-primary:hover { opacity: 0.9; }
 
   /* ===== HEADER ===== */
   header {
     position: sticky;
     top: 0;
     z-index: 100;
-    background: rgba(245,245,247,0.92);
-    backdrop-filter: blur(12px);
+    background: rgba(245,245,247,0.88);
+    backdrop-filter: blur(14px);
     padding: 12px 20px;
     display: flex;
     align-items: center;
     gap: 10px;
+    border-bottom: 1px solid rgba(0,0,0,0.06);
   }
 
-  .header-logo { font-size: 1.6rem; }
+  .header-logo { font-size: 1.5rem; }
+
+  .event-badge-sm {
+    background: #fffbe6;
+    border: 1.5px solid #ffd566;
+    border-radius: 999px;
+    padding: 6px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #7a5c00;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+  }
 
   .header-name {
     background: #fff9e6;
     border: 2px solid #ffd566;
     border-radius: 999px;
-    padding: 8px 18px;
-    font-size: 0.95rem;
+    padding: 7px 16px;
+    font-size: 0.9rem;
     font-weight: 700;
     display: flex;
     align-items: center;
     gap: 6px;
     margin-left: auto;
+    white-space: nowrap;
   }
 
   .icon-btn {
-    width: 42px;
-    height: 42px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
     border: 2px solid #e5e5ea;
     background: white;
@@ -176,8 +229,8 @@
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    font-size: 1.1rem;
-    transition: background .15s;
+    font-size: 1rem;
+    flex-shrink: 0;
   }
   .icon-btn:hover { background: #f0f0f5; }
 
@@ -199,12 +252,13 @@
   .greeting span { color: var(--blue); }
 
   .greeting-sub {
-    color: #555;
+    color: #666;
     font-size: 1rem;
     margin-bottom: 28px;
     line-height: 1.5;
   }
 
+  /* ===== STATS ===== */
   .stats-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -215,31 +269,32 @@
   .stat-card {
     background: white;
     border-radius: 16px;
-    padding: 16px;
+    padding: 16px 14px;
     display: flex;
     align-items: center;
     gap: 12px;
     box-shadow: var(--shadow);
   }
 
-  .stat-icon { font-size: 1.8rem; }
+  .stat-icon { font-size: 1.8rem; flex-shrink: 0; }
 
   .stat-num {
-    font-size: 1.6rem;
+    font-size: 1.7rem;
     font-weight: 900;
     line-height: 1;
   }
 
   .stat-label {
-    font-size: 0.65rem;
+    font-size: 0.62rem;
     font-weight: 700;
     color: var(--gray);
     letter-spacing: 0.5px;
     text-transform: uppercase;
+    margin-top: 2px;
   }
 
   .section-title {
-    font-size: 1.2rem;
+    font-size: 1.1rem;
     font-weight: 900;
     margin-bottom: 16px;
     display: flex;
@@ -257,10 +312,11 @@
     border: 2px solid var(--orange-border);
     background: var(--orange-light);
     box-shadow: var(--shadow);
+    transition: opacity .2s;
   }
 
   .group-card.full {
-    opacity: 0.7;
+    opacity: 0.6;
     border-color: #ddd;
     background: #f9f9f9;
   }
@@ -278,7 +334,7 @@
     border: 1.5px solid #e0d5c8;
     border-radius: 999px;
     padding: 5px 12px;
-    font-size: 0.78rem;
+    font-size: 0.75rem;
     font-weight: 800;
     color: #5a3a1a;
     letter-spacing: 0.5px;
@@ -288,17 +344,26 @@
 
   .group-deco {
     position: absolute;
-    top: -8px;
-    right: -8px;
-    font-size: 3.5rem;
-    opacity: 0.18;
+    top: -6px;
+    right: -6px;
+    font-size: 3.8rem;
+    opacity: 0.15;
+    pointer-events: none;
   }
 
   .group-name {
-    font-size: 1.5rem;
+    font-size: 1.45rem;
     font-weight: 900;
     margin-bottom: 14px;
     color: var(--dark);
+    padding-right: 40px;
+  }
+
+  .count-pill {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: #888;
+    margin-bottom: 12px;
   }
 
   .members-list {
@@ -309,7 +374,7 @@
   .member-row {
     display: flex;
     align-items: center;
-    gap: 10px;
+    gap: 8px;
     padding: 5px 0;
     font-size: 1rem;
     font-weight: 700;
@@ -318,12 +383,13 @@
 
   .member-row.empty {
     font-style: italic;
-    color: #bbb;
+    color: #c0c0c0;
     font-weight: 400;
+    font-size: 0.95rem;
   }
 
   .chef-badge {
-    font-size: 0.65rem;
+    font-size: 0.63rem;
     font-weight: 800;
     color: var(--orange);
     letter-spacing: 0.8px;
@@ -359,22 +425,12 @@
   }
 
   .btn-join:disabled {
-    background: #ccc;
+    background: #d0d0d5;
     cursor: not-allowed;
-    opacity: 0.6;
+    opacity: 0.7;
   }
 
-  .count-pill {
-    font-size: 0.9rem;
-    font-weight: 700;
-    color: #666;
-    margin-bottom: 12px;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-  }
-
-  /* ===== GROUP NAME MODAL ===== */
+  /* ===== MODAL ===== */
   .modal-overlay {
     position: fixed;
     inset: 0;
@@ -396,15 +452,22 @@
   }
 
   @keyframes slideUp {
-    from { transform: translateY(100%); opacity: 0; }
+    from { transform: translateY(80px); opacity: 0; }
     to   { transform: translateY(0);    opacity: 1; }
   }
 
   .modal-title {
     font-size: 1.2rem;
     font-weight: 900;
-    margin-bottom: 18px;
+    margin-bottom: 6px;
     text-align: center;
+  }
+
+  .modal-sub {
+    text-align: center;
+    color: #777;
+    font-size: 0.88rem;
+    margin-bottom: 18px;
   }
 
   .modal-input {
@@ -417,9 +480,10 @@
     margin-bottom: 14px;
     color: var(--dark);
     transition: border-color .2s;
+    background: #fafbff;
   }
 
-  .modal-input:focus { border-color: var(--blue); }
+  .modal-input:focus { border-color: var(--blue); background: white; }
 
   .modal-btns { display: flex; gap: 10px; }
 
@@ -445,9 +509,12 @@
     font-size: 1rem;
     font-weight: 700;
     cursor: pointer;
+    transition: opacity .15s;
   }
 
-  /* ===== STUDENTS LIST ===== */
+  .btn-confirm:hover { opacity: 0.9; }
+
+  /* ===== STUDENTS ===== */
   .students-grid {
     display: flex;
     flex-wrap: wrap;
@@ -460,7 +527,7 @@
     border: 2px solid #e5e5ea;
     border-radius: 999px;
     padding: 8px 16px;
-    font-size: 0.9rem;
+    font-size: 0.88rem;
     font-weight: 600;
     color: var(--dark);
     box-shadow: 0 2px 8px rgba(0,0,0,0.05);
@@ -469,6 +536,7 @@
   .student-chip.me {
     border-color: var(--blue);
     color: var(--blue);
+    background: #f0f4ff;
   }
 
   /* ===== TOAST ===== */
@@ -487,28 +555,37 @@
     opacity: 0;
     transition: opacity .3s;
     white-space: nowrap;
+    pointer-events: none;
   }
 
   .toast.show { opacity: 1; }
 
-  /* ===== HIDDEN ===== */
   .hidden { display: none !important; }
 </style>
 </head>
 <body>
 
+<!-- Fond animé -->
+<div class="bg-canvas">
+  <div class="bg-blob blob1"></div>
+  <div class="bg-blob blob2"></div>
+  <div class="bg-blob blob3"></div>
+  <div class="bg-blob blob4"></div>
+  <div class="bg-food f1">🥨</div>
+  <div class="bg-food f2">🎂</div>
+  <div class="bg-food f3">🥤</div>
+  <div class="bg-food f4">🥖</div>
+  <div class="bg-food f5">🎉</div>
+  <div class="bg-food f6">✨</div>
+  <div class="bg-food f7">🧃</div>
+  <div class="bg-food f8">🍰</div>
+</div>
+
 <!-- ===== LANDING ===== -->
 <section id="landing">
   <div class="event-badge">🎉 Goûter de fin d'année</div>
-
-  <div class="hero-wrap">
-    <span class="food-img deco-pretzel">🥨</span>
-    <span class="food-img deco-cake">🎂</span>
-    <span class="food-img deco-juice">🧃</span>
-
-    <h1 class="hero-title">On organise<br>notre <span>goûter&nbsp;!</span></h1>
-    <p class="hero-sub">Rejoins un groupe avec tes potes, choisis un thème, et viens partager le meilleur goûter de l'année.</p>
-  </div>
+  <h1 class="hero-title">On organise<br>notre <span>goûter&nbsp;!</span></h1>
+  <p class="hero-sub">Rejoins un groupe avec tes potes, choisis un thème, et viens partager le meilleur goûter de l'année.</p>
 
   <div class="name-card">
     <label>Ton prénom</label>
@@ -521,9 +598,9 @@
 <section id="dashboard">
   <header>
     <span class="header-logo">🎊</span>
-    <div class="event-badge" style="margin:0;font-size:13px;">🎉 Goûter de fin d'année</div>
+    <div class="event-badge-sm">🎉 Goûter de fin d'année</div>
     <div class="header-name" id="headerName"></div>
-    <button class="icon-btn" title="Déconnexion" onclick="logout()">→</button>
+    <button class="icon-btn" title="Déconnexion" onclick="logout()">⇥</button>
   </header>
 
   <div class="dash-content">
@@ -569,12 +646,12 @@
   </div>
 </section>
 
-<!-- ===== GROUP NAME MODAL ===== -->
+<!-- ===== MODAL NOM DU GROUPE ===== -->
 <div class="modal-overlay hidden" id="modalOverlay">
   <div class="modal-sheet">
     <div class="modal-title" id="modalTitle">Rejoindre le groupe</div>
-    <p style="text-align:center;color:#777;font-size:0.9rem;margin-bottom:18px;" id="modalSub">Tu es le premier, donne un nom à ton groupe !</p>
-    <input class="modal-input" id="modalInput" type="text" placeholder="Ex: Team Chips, Les Rois du Saucisson..." maxlength="40" />
+    <p class="modal-sub" id="modalSub">Tu es le premier ! Donne un nom à ton groupe.</p>
+    <input class="modal-input" id="modalInput" type="text" maxlength="40" />
     <div class="modal-btns">
       <button class="btn-cancel" onclick="closeModal()">Annuler</button>
       <button class="btn-confirm" onclick="confirmJoin()">→ Rejoindre</button>
@@ -587,15 +664,16 @@
 <script src="/socket.io/socket.io.js"></script>
 <script>
 const socket = io();
+
 let myName = null;
 let myTheme = null;
 let pendingTheme = null;
 let lastState = null;
 
-// ===== NAME SUBMIT =====
+// ===== CONNEXION =====
 function submitName() {
   const val = document.getElementById('nameInput').value.trim();
-  if (!val) return;
+  if (!val) { showToast('Entre ton prénom !'); return; }
   socket.emit('join', { name: val });
 }
 
@@ -613,9 +691,9 @@ socket.on('joined', ({ name }) => {
 });
 
 function logout() {
+  socket.emit('leaveGroup');
   myName = null;
   myTheme = null;
-  socket.emit('leaveGroup');
   document.getElementById('landing').style.display = 'flex';
   document.getElementById('dashboard').style.display = 'none';
   document.getElementById('nameInput').value = '';
@@ -624,31 +702,31 @@ function logout() {
 // ===== STATE =====
 socket.on('state', (state) => {
   lastState = state;
+
   if (myName) {
-    // detect which group I'm in
+    // Recalcule dans quel groupe je suis
     myTheme = null;
     state.themes.forEach(t => {
-      const g = state.groups[t.id];
-      if (g.members.some(m => m.name === myName)) myTheme = t.id;
+      if (state.groups[t.id].members.includes(myName)) myTheme = t.id;
     });
     render(state);
+  } else {
+    // Même sans être connecté, on peut mettre à jour les stats
+    document.getElementById('statConnected').textContent = state.connected;
   }
-  // Update stats always
-  document.getElementById('statConnected').textContent = state.connected;
 });
 
-socket.on('error', ({ message }) => showToast(message));
+socket.on('groupError', ({ message }) => showToast(message));
 
-// ===== RENDER =====
+// ===== RENDU =====
 function render(state) {
-  // Stats
   const activeGroups = Object.values(state.groups).filter(g => g.members.length > 0).length;
   document.getElementById('statGroups').textContent = activeGroups;
   document.getElementById('statStudents').textContent = state.students.length;
   document.getElementById('statSpots').textContent = state.totalSpots - state.takenSpots;
   document.getElementById('statConnected').textContent = state.connected;
 
-  // Groups
+  // Groupes
   const container = document.getElementById('groupsContainer');
   container.innerHTML = '';
 
@@ -656,21 +734,22 @@ function render(state) {
     const group = state.groups[theme.id];
     const isFull = group.members.length >= 3;
     const isMine = myTheme === theme.id;
-    const isInAny = myTheme !== null;
+    const inAGroup = myTheme !== null;
 
     const card = document.createElement('div');
     card.className = 'group-card' + (isFull && !isMine ? ' full' : '') + (isMine ? ' mine' : '');
 
     const groupName = group.name || `Équipe ${theme.label}`;
 
+    // 3 rangs membres
     let membersHtml = '';
     for (let i = 0; i < 3; i++) {
       if (group.members[i]) {
         const isChef = i === 0;
         membersHtml += `
           <li class="member-row">
-            ${isChef ? '👑' : '•'}
-            <span>${group.members[i].name}</span>
+            <span>${isChef ? '👑' : '•'}</span>
+            <span>${esc(group.members[i])}</span>
             ${isChef ? '<span class="chef-badge">CHEF</span>' : ''}
           </li>`;
       } else {
@@ -683,16 +762,15 @@ function render(state) {
       btnHtml = `<button class="btn-join leave" onclick="leaveGroup()">← Quitter le groupe</button>`;
     } else if (isFull) {
       btnHtml = `<button class="btn-join" disabled>Groupe complet</button>`;
-    } else if (!isInAny) {
-      btnHtml = `<button class="btn-join" onclick="joinGroup('${theme.id}', ${group.members.length === 0})">→ Rejoindre</button>`;
     } else {
-      btnHtml = `<button class="btn-join" onclick="joinGroup('${theme.id}', ${group.members.length === 0})">→ Changer de groupe</button>`;
+      const label = inAGroup ? '→ Changer de groupe' : '→ Rejoindre';
+      btnHtml = `<button class="btn-join" onclick="askJoin('${theme.id}', ${group.members.length === 0})">${label}</button>`;
     }
 
     card.innerHTML = `
       <div class="group-deco">${theme.emoji}</div>
       <div class="theme-badge">${theme.emoji} ${theme.label}</div>
-      <div class="group-name">${groupName}</div>
+      <div class="group-name">${esc(groupName)}</div>
       <div class="count-pill">👤 ${group.members.length}/3</div>
       <ul class="members-list">${membersHtml}</ul>
       ${btnHtml}
@@ -700,7 +778,7 @@ function render(state) {
     container.appendChild(card);
   });
 
-  // Students
+  // Élèves inscrits
   const grid = document.getElementById('studentsGrid');
   grid.innerHTML = '';
   state.students.forEach(name => {
@@ -711,17 +789,17 @@ function render(state) {
   });
 }
 
-// ===== JOIN / LEAVE =====
-function joinGroup(themeId, isFirst) {
+// ===== REJOINDRE =====
+function askJoin(themeId, isFirst) {
   pendingTheme = themeId;
   if (isFirst) {
     const theme = lastState.themes.find(t => t.id === themeId);
-    document.getElementById('modalTitle').textContent = `Rejoindre ${theme.label}`;
+    document.getElementById('modalTitle').textContent = `Rejoindre ${theme.label} 🎉`;
     document.getElementById('modalSub').textContent = 'Tu es le premier ! Donne un nom à ton groupe.';
-    document.getElementById('modalInput').value = '';
     document.getElementById('modalInput').placeholder = `Ex: Team ${theme.label}, Les Rois...`;
+    document.getElementById('modalInput').value = '';
     document.getElementById('modalOverlay').classList.remove('hidden');
-    setTimeout(() => document.getElementById('modalInput').focus(), 100);
+    setTimeout(() => document.getElementById('modalInput').focus(), 80);
   } else {
     socket.emit('joinGroup', { themeId, groupName: null });
     pendingTheme = null;
@@ -733,7 +811,6 @@ function confirmJoin() {
   if (!name) { showToast('Donne un nom au groupe !'); return; }
   socket.emit('joinGroup', { themeId: pendingTheme, groupName: name });
   closeModal();
-  pendingTheme = null;
 }
 
 function closeModal() {
@@ -748,15 +825,19 @@ document.getElementById('modalInput').addEventListener('keydown', e => {
 
 function leaveGroup() {
   socket.emit('leaveGroup');
-  myTheme = null;
 }
 
-// ===== TOAST =====
+// ===== UTILS =====
 function showToast(msg) {
   const t = document.getElementById('toast');
   t.textContent = msg;
   t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 2500);
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+function esc(str) {
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
 </script>
 </body>
