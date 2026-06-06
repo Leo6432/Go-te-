@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Goûter de fin d'année 🎉</title>
+<style>
+  :root {
+    --bg: #f5f5f7;
+    --card: #ffffff;
+    --dark: #1a1a2e;
+    --blue: #5b8dee;
+    --orange: #f07830;
+    --orange-light: #fff3eb;
+    --orange-border: #f8c89a;
+    --gray: #8e8e93;
+    --radius: 20px;
+    --shadow: 0 4px 20px rgba(0,0,0,0.08);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    min-height: 100vh;
+    color: var(--dark);
+  }
+
+  /* ===== LANDING ===== */
+  #landing {
+    min-height: 100vh;
+    background: linear-gradient(180deg, #f0f4ff 0%, #fff 60%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 24px 60px;
+  }
+
+  .event-badge {
+    background: #fffbe6;
+    border: 1.5px solid #ffd566;
+    border-radius: 999px;
+    padding: 8px 18px;
+    font-size: 14px;
+    font-weight: 600;
+    color: #7a5c00;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 32px;
+  }
+
+  .hero-title {
+    font-size: 2.4rem;
+    font-weight: 900;
+    text-align: center;
+    line-height: 1.15;
+    margin-bottom: 16px;
+  }
+
+  .hero-title span { color: var(--blue); }
+
+  .hero-sub {
+    font-size: 1.05rem;
+    color: #555;
+    text-align: center;
+    max-width: 320px;
+    line-height: 1.6;
+    margin-bottom: 36px;
+  }
+
+  .food-img {
+    position: absolute;
+    font-size: 2.5rem;
+    user-select: none;
+  }
+
+  .hero-wrap {
+    position: relative;
+    width: 100%;
+    max-width: 380px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .deco-pretzel { top: -10px; left: -10px; }
+  .deco-cake { top: -10px; right: -10px; }
+  .deco-juice { bottom: -10px; left: 0; }
+
+  .name-card {
+    background: white;
+    border-radius: var(--radius);
+    box-shadow: var(--shadow);
+    padding: 28px 24px;
+    width: 100%;
+    max-width: 380px;
+  }
+
+  .name-card label {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--dark);
+    display: block;
+    margin-bottom: 10px;
+  }
+
+  .name-card input {
+    width: 100%;
+    padding: 16px 18px;
+    border: 2px solid #e0e8ff;
+    border-radius: 14px;
+    font-size: 1rem;
+    outline: none;
+    transition: border-color .2s;
+    color: var(--dark);
+  }
+
+  .name-card input:focus { border-color: var(--blue); }
+  .name-card input::placeholder { color: #aaa; }
+
+  .btn-primary {
+    width: 100%;
+    padding: 18px;
+    background: var(--dark);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    font-size: 1.05rem;
+    font-weight: 700;
+    cursor: pointer;
+    margin-top: 14px;
+    letter-spacing: 0.3px;
+    transition: transform .15s, opacity .15s;
+  }
+
+  .btn-primary:active { transform: scale(0.97); }
+  .btn-primary:hover { opacity: 0.9; }
+
+  /* ===== HEADER ===== */
+  header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(245,245,247,0.92);
+    backdrop-filter: blur(12px);
+    padding: 12px 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .header-logo { font-size: 1.6rem; }
+
+  .header-name {
+    background: #fff9e6;
+    border: 2px solid #ffd566;
+    border-radius: 999px;
+    padding: 8px 18px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    margin-left: auto;
+  }
+
+  .icon-btn {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    border: 2px solid #e5e5ea;
+    background: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 1.1rem;
+    transition: background .15s;
+  }
+  .icon-btn:hover { background: #f0f0f5; }
+
+  /* ===== DASHBOARD ===== */
+  #dashboard { display: none; }
+
+  .dash-content {
+    padding: 24px 20px 100px;
+    max-width: 480px;
+    margin: 0 auto;
+  }
+
+  .greeting {
+    font-size: 2rem;
+    font-weight: 900;
+    margin-bottom: 6px;
+  }
+
+  .greeting span { color: var(--blue); }
+
+  .greeting-sub {
+    color: #555;
+    font-size: 1rem;
+    margin-bottom: 28px;
+    line-height: 1.5;
+  }
+
+  .stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+    margin-bottom: 32px;
+  }
+
+  .stat-card {
+    background: white;
+    border-radius: 16px;
+    padding: 16px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    box-shadow: var(--shadow);
+  }
+
+  .stat-icon { font-size: 1.8rem; }
+
+  .stat-num {
+    font-size: 1.6rem;
+    font-weight: 900;
+    line-height: 1;
+  }
+
+  .stat-label {
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: var(--gray);
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  .section-title {
+    font-size: 1.2rem;
+    font-weight: 900;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* ===== GROUP CARDS ===== */
+  .group-card {
+    border-radius: var(--radius);
+    padding: 22px;
+    margin-bottom: 16px;
+    position: relative;
+    overflow: hidden;
+    border: 2px solid var(--orange-border);
+    background: var(--orange-light);
+    box-shadow: var(--shadow);
+  }
+
+  .group-card.full {
+    opacity: 0.7;
+    border-color: #ddd;
+    background: #f9f9f9;
+  }
+
+  .group-card.mine {
+    border-color: var(--blue);
+    background: #f0f4ff;
+  }
+
+  .theme-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #fff;
+    border: 1.5px solid #e0d5c8;
+    border-radius: 999px;
+    padding: 5px 12px;
+    font-size: 0.78rem;
+    font-weight: 800;
+    color: #5a3a1a;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    margin-bottom: 12px;
+  }
+
+  .group-deco {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    font-size: 3.5rem;
+    opacity: 0.18;
+  }
+
+  .group-name {
+    font-size: 1.5rem;
+    font-weight: 900;
+    margin-bottom: 14px;
+    color: var(--dark);
+  }
+
+  .members-list {
+    list-style: none;
+    margin-bottom: 18px;
+  }
+
+  .member-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 5px 0;
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--dark);
+  }
+
+  .member-row.empty {
+    font-style: italic;
+    color: #bbb;
+    font-weight: 400;
+  }
+
+  .chef-badge {
+    font-size: 0.65rem;
+    font-weight: 800;
+    color: var(--orange);
+    letter-spacing: 0.8px;
+    text-transform: uppercase;
+    background: #ffe4cc;
+    border-radius: 999px;
+    padding: 2px 8px;
+  }
+
+  .btn-join {
+    width: 100%;
+    padding: 16px;
+    background: var(--orange);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: transform .15s, opacity .15s;
+  }
+
+  .btn-join:hover { opacity: 0.9; }
+  .btn-join:active { transform: scale(0.97); }
+
+  .btn-join.leave {
+    background: #e5e5ea;
+    color: #555;
+  }
+
+  .btn-join:disabled {
+    background: #ccc;
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+
+  .count-pill {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: #666;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  /* ===== GROUP NAME MODAL ===== */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    z-index: 200;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding: 0 0 20px;
+  }
+
+  .modal-sheet {
+    background: white;
+    border-radius: 24px 24px 16px 16px;
+    padding: 28px 24px 32px;
+    width: 100%;
+    max-width: 480px;
+    animation: slideUp .25s ease;
+  }
+
+  @keyframes slideUp {
+    from { transform: translateY(100%); opacity: 0; }
+    to   { transform: translateY(0);    opacity: 1; }
+  }
+
+  .modal-title {
+    font-size: 1.2rem;
+    font-weight: 900;
+    margin-bottom: 18px;
+    text-align: center;
+  }
+
+  .modal-input {
+    width: 100%;
+    padding: 16px 18px;
+    border: 2px solid #e0e8ff;
+    border-radius: 14px;
+    font-size: 1rem;
+    outline: none;
+    margin-bottom: 14px;
+    color: var(--dark);
+    transition: border-color .2s;
+  }
+
+  .modal-input:focus { border-color: var(--blue); }
+
+  .modal-btns { display: flex; gap: 10px; }
+
+  .btn-cancel {
+    flex: 1;
+    padding: 16px;
+    background: #f0f0f5;
+    color: #555;
+    border: none;
+    border-radius: 50px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  .btn-confirm {
+    flex: 2;
+    padding: 16px;
+    background: var(--orange);
+    color: white;
+    border: none;
+    border-radius: 50px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+  }
+
+  /* ===== STUDENTS LIST ===== */
+  .students-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 32px;
+  }
+
+  .student-chip {
+    background: white;
+    border: 2px solid #e5e5ea;
+    border-radius: 999px;
+    padding: 8px 16px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--dark);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+  }
+
+  .student-chip.me {
+    border-color: var(--blue);
+    color: var(--blue);
+  }
+
+  /* ===== TOAST ===== */
+  .toast {
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #1a1a2e;
+    color: white;
+    padding: 14px 24px;
+    border-radius: 999px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    z-index: 300;
+    opacity: 0;
+    transition: opacity .3s;
+    white-space: nowrap;
+  }
+
+  .toast.show { opacity: 1; }
+
+  /* ===== HIDDEN ===== */
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<!-- ===== LANDING ===== -->
+<section id="landing">
+  <div class="event-badge">🎉 Goûter de fin d'année</div>
+
+  <div class="hero-wrap">
+    <span class="food-img deco-pretzel">🥨</span>
+    <span class="food-img deco-cake">🎂</span>
+    <span class="food-img deco-juice">🧃</span>
+
+    <h1 class="hero-title">On organise<br>notre <span>goûter&nbsp;!</span></h1>
+    <p class="hero-sub">Rejoins un groupe avec tes potes, choisis un thème, et viens partager le meilleur goûter de l'année.</p>
+  </div>
+
+  <div class="name-card">
+    <label>Ton prénom</label>
+    <input id="nameInput" type="text" placeholder="Ex: Léa, Tom, Inès..." maxlength="30" autocomplete="off" />
+    <button class="btn-primary" onclick="submitName()">👋 Rejoindre</button>
+  </div>
+</section>
+
+<!-- ===== DASHBOARD ===== -->
+<section id="dashboard">
+  <header>
+    <span class="header-logo">🎊</span>
+    <div class="event-badge" style="margin:0;font-size:13px;">🎉 Goûter de fin d'année</div>
+    <div class="header-name" id="headerName"></div>
+    <button class="icon-btn" title="Déconnexion" onclick="logout()">→</button>
+  </header>
+
+  <div class="dash-content">
+    <h2 class="greeting">Salut <span id="greetName"></span> 👋</h2>
+    <p class="greeting-sub">Choisis un groupe à rejoindre.</p>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <span class="stat-icon">👥</span>
+        <div>
+          <div class="stat-num" id="statGroups">0</div>
+          <div class="stat-label">Groupes</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <span class="stat-icon">🙋</span>
+        <div>
+          <div class="stat-num" id="statStudents">0</div>
+          <div class="stat-label">Élèves inscrits</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <span class="stat-icon">✨</span>
+        <div>
+          <div class="stat-num" id="statSpots">0</div>
+          <div class="stat-label">Places libres</div>
+        </div>
+      </div>
+      <div class="stat-card">
+        <span class="stat-icon">🎈</span>
+        <div>
+          <div class="stat-num" id="statConnected">0</div>
+          <div class="stat-label">Connectés</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title">🥳 Les groupes</div>
+    <div id="groupsContainer"></div>
+
+    <div class="section-title">👥 Tous les inscrits</div>
+    <div class="students-grid" id="studentsGrid"></div>
+  </div>
+</section>
+
+<!-- ===== GROUP NAME MODAL ===== -->
+<div class="modal-overlay hidden" id="modalOverlay">
+  <div class="modal-sheet">
+    <div class="modal-title" id="modalTitle">Rejoindre le groupe</div>
+    <p style="text-align:center;color:#777;font-size:0.9rem;margin-bottom:18px;" id="modalSub">Tu es le premier, donne un nom à ton groupe !</p>
+    <input class="modal-input" id="modalInput" type="text" placeholder="Ex: Team Chips, Les Rois du Saucisson..." maxlength="40" />
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="closeModal()">Annuler</button>
+      <button class="btn-confirm" onclick="confirmJoin()">→ Rejoindre</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+const socket = io();
+let myName = null;
+let myTheme = null;
+let pendingTheme = null;
+let lastState = null;
+
+// ===== NAME SUBMIT =====
+function submitName() {
+  const val = document.getElementById('nameInput').value.trim();
+  if (!val) return;
+  socket.emit('join', { name: val });
+}
+
+document.getElementById('nameInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') submitName();
+});
+
+socket.on('joined', ({ name }) => {
+  myName = name;
+  document.getElementById('greetName').textContent = name;
+  document.getElementById('headerName').innerHTML = `👋 ${name}`;
+  document.getElementById('landing').style.display = 'none';
+  document.getElementById('dashboard').style.display = 'block';
+  if (lastState) render(lastState);
+});
+
+function logout() {
+  myName = null;
+  myTheme = null;
+  socket.emit('leaveGroup');
+  document.getElementById('landing').style.display = 'flex';
+  document.getElementById('dashboard').style.display = 'none';
+  document.getElementById('nameInput').value = '';
+}
+
+// ===== STATE =====
+socket.on('state', (state) => {
+  lastState = state;
+  if (myName) {
+    // detect which group I'm in
+    myTheme = null;
+    state.themes.forEach(t => {
+      const g = state.groups[t.id];
+      if (g.members.some(m => m.name === myName)) myTheme = t.id;
+    });
+    render(state);
+  }
+  // Update stats always
+  document.getElementById('statConnected').textContent = state.connected;
+});
+
+socket.on('error', ({ message }) => showToast(message));
+
+// ===== RENDER =====
+function render(state) {
+  // Stats
+  const activeGroups = Object.values(state.groups).filter(g => g.members.length > 0).length;
+  document.getElementById('statGroups').textContent = activeGroups;
+  document.getElementById('statStudents').textContent = state.students.length;
+  document.getElementById('statSpots').textContent = state.totalSpots - state.takenSpots;
+  document.getElementById('statConnected').textContent = state.connected;
+
+  // Groups
+  const container = document.getElementById('groupsContainer');
+  container.innerHTML = '';
+
+  state.themes.forEach(theme => {
+    const group = state.groups[theme.id];
+    const isFull = group.members.length >= 3;
+    const isMine = myTheme === theme.id;
+    const isInAny = myTheme !== null;
+
+    const card = document.createElement('div');
+    card.className = 'group-card' + (isFull && !isMine ? ' full' : '') + (isMine ? ' mine' : '');
+
+    const groupName = group.name || `Équipe ${theme.label}`;
+
+    let membersHtml = '';
+    for (let i = 0; i < 3; i++) {
+      if (group.members[i]) {
+        const isChef = i === 0;
+        membersHtml += `
+          <li class="member-row">
+            ${isChef ? '👑' : '•'}
+            <span>${group.members[i].name}</span>
+            ${isChef ? '<span class="chef-badge">CHEF</span>' : ''}
+          </li>`;
+      } else {
+        membersHtml += `<li class="member-row empty"><span>Place libre...</span></li>`;
+      }
+    }
+
+    let btnHtml = '';
+    if (isMine) {
+      btnHtml = `<button class="btn-join leave" onclick="leaveGroup()">← Quitter le groupe</button>`;
+    } else if (isFull) {
+      btnHtml = `<button class="btn-join" disabled>Groupe complet</button>`;
+    } else if (!isInAny) {
+      btnHtml = `<button class="btn-join" onclick="joinGroup('${theme.id}', ${group.members.length === 0})">→ Rejoindre</button>`;
+    } else {
+      btnHtml = `<button class="btn-join" onclick="joinGroup('${theme.id}', ${group.members.length === 0})">→ Changer de groupe</button>`;
+    }
+
+    card.innerHTML = `
+      <div class="group-deco">${theme.emoji}</div>
+      <div class="theme-badge">${theme.emoji} ${theme.label}</div>
+      <div class="group-name">${groupName}</div>
+      <div class="count-pill">👤 ${group.members.length}/3</div>
+      <ul class="members-list">${membersHtml}</ul>
+      ${btnHtml}
+    `;
+    container.appendChild(card);
+  });
+
+  // Students
+  const grid = document.getElementById('studentsGrid');
+  grid.innerHTML = '';
+  state.students.forEach(name => {
+    const chip = document.createElement('div');
+    chip.className = 'student-chip' + (name === myName ? ' me' : '');
+    chip.textContent = name;
+    grid.appendChild(chip);
+  });
+}
+
+// ===== JOIN / LEAVE =====
+function joinGroup(themeId, isFirst) {
+  pendingTheme = themeId;
+  if (isFirst) {
+    const theme = lastState.themes.find(t => t.id === themeId);
+    document.getElementById('modalTitle').textContent = `Rejoindre ${theme.label}`;
+    document.getElementById('modalSub').textContent = 'Tu es le premier ! Donne un nom à ton groupe.';
+    document.getElementById('modalInput').value = '';
+    document.getElementById('modalInput').placeholder = `Ex: Team ${theme.label}, Les Rois...`;
+    document.getElementById('modalOverlay').classList.remove('hidden');
+    setTimeout(() => document.getElementById('modalInput').focus(), 100);
+  } else {
+    socket.emit('joinGroup', { themeId, groupName: null });
+    pendingTheme = null;
+  }
+}
+
+function confirmJoin() {
+  const name = document.getElementById('modalInput').value.trim();
+  if (!name) { showToast('Donne un nom au groupe !'); return; }
+  socket.emit('joinGroup', { themeId: pendingTheme, groupName: name });
+  closeModal();
+  pendingTheme = null;
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.add('hidden');
+  pendingTheme = null;
+}
+
+document.getElementById('modalInput').addEventListener('keydown', e => {
+  if (e.key === 'Enter') confirmJoin();
+  if (e.key === 'Escape') closeModal();
+});
+
+function leaveGroup() {
+  socket.emit('leaveGroup');
+  myTheme = null;
+}
+
+// ===== TOAST =====
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+</script>
+</body>
+</html>
