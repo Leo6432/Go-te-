@@ -696,6 +696,9 @@ function render(state) {
     const group = state.groups[theme.id];
     const isMine = myLoc && myLoc.type === 'theme' && myLoc.id === theme.id;
 
+    const MAX = 5;
+    const isFull = group.members.length >= MAX && !isMine;
+
     const card = document.createElement('div');
     card.className = 'group-card' + (isMine ? ' mine' : '');
 
@@ -710,7 +713,9 @@ function render(state) {
 
     const btnHtml = isMine
       ? `<button class="btn-join leave" onclick="leaveGroup()">← Quitter le groupe</button>`
-      : `<button class="btn-join" onclick="joinTheme('${theme.id}')">→ Rejoindre</button>`;
+      : isFull
+        ? `<button class="btn-join" disabled style="opacity:0.45;cursor:not-allowed;">🔒 Complet (5/5)</button>`
+        : `<button class="btn-join" onclick="joinTheme('${theme.id}')">→ Rejoindre</button>`;
 
     // Léo (admin) peut ajouter un prénom dans n'importe quel groupe
     const adminBtn = isAdmin
@@ -721,7 +726,7 @@ function render(state) {
       <div class="group-deco">${theme.emoji}</div>
       <div class="theme-badge">${theme.emoji} ${theme.label}</div>
       <div class="group-name">${theme.label}</div>
-      <div class="count-pill">👤 ${group.members.length} ${group.members.length > 1 ? 'inscrits' : 'inscrit'}</div>
+      <div class="count-pill">👤 ${group.members.length}/5 ${group.members.length > 1 ? 'inscrits' : 'inscrit'}</div>
       <ul class="members-list">${membersHtml}</ul>
       ${btnHtml}
       ${adminBtn}

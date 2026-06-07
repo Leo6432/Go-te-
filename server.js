@@ -196,12 +196,21 @@ io.on('connection', (socket) => {
     broadcastState();
   });
 
-  // Rejoindre un thème classique (boisson, saucisson, gâteau, chips) — illimité
+  const MAX_PER_THEME = 5;
+
+  // Rejoindre un thème classique — max 5 personnes
   socket.on('joinTheme', ({ themeId }) => {
     const name = socket.data.name;
     if (!name) return;
     const group = groups[themeId];
     if (!group) return;
+
+    // Si l'élève est déjà dans ce groupe, on ne compte pas sa place en double
+    const alreadyHere = group.members.includes(name);
+    if (!alreadyHere && group.members.length >= MAX_PER_THEME) {
+      socket.emit('groupError', { message: 'Ce groupe est complet (5 max) !' });
+      return;
+    }
 
     removeFromEverywhere(name);
     group.members.push(name);
