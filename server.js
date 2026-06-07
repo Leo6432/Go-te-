@@ -16,7 +16,7 @@ const THEMES = [
   { id: 'gateau',    label: 'Gâteau',    emoji: '🎂' },
   { id: 'chips',     label: 'Chips',     emoji: '🥨' },
   { id: 'bonbon',    label: 'Bonbons',   emoji: '🍬' },
-  { id: 'vaisselle', label: 'Verres, papier & assiettes', emoji: '🥤' },
+  { id: 'vaisselle', label: 'Verres & assiettes carton', emoji: '🥤' },
 ];
 // "Autre" est spécial : chacun crée sa propre entrée (1 personne) avec ce qu'il apporte
 const AUTRE = { id: 'autre', label: 'Autre', emoji: '✨' };
