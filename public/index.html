@@ -515,22 +515,19 @@
     <h2 class="greeting" id="greetingLine">Salut <span id="greetName"></span> 👋</h2>
     <p class="greeting-sub">Choisis un groupe à rejoindre.</p>
 
-    <div class="stats-grid" id="statsGrid" style="display:none;">
-      <div class="stat-card">
-        <span class="stat-icon">👥</span>
-        <div><div class="stat-num" id="statGroups">0</div><div class="stat-label">Groupes</div></div>
-      </div>
-      <div class="stat-card">
-        <span class="stat-icon">🙋</span>
-        <div><div class="stat-num" id="statStudents">0</div><div class="stat-label">Élèves inscrits</div></div>
-      </div>
-      <div class="stat-card">
-        <span class="stat-icon">🍽️</span>
-        <div><div class="stat-num" id="statInGroup">0</div><div class="stat-label">Dans un groupe</div></div>
-      </div>
-      <div class="stat-card">
-        <span class="stat-icon">🎈</span>
-        <div><div class="stat-num" id="statConnected">0</div><div class="stat-label">Connectés</div></div>
+    <div id="statsGrid" style="display:none; margin-bottom:28px;">
+      <div style="background:white;border-radius:16px;padding:18px 20px;box-shadow:var(--shadow);">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <span style="font-weight:800;font-size:0.95rem;">🍽️ Ont choisi un groupe</span>
+          <span style="font-size:1.3rem;font-weight:900;" id="statInGroup">0</span>
+        </div>
+        <div style="background:#eee;border-radius:999px;height:10px;overflow:hidden;">
+          <div id="statBar" style="background:var(--blue);height:100%;border-radius:999px;transition:width .4s;width:0%"></div>
+        </div>
+        <div style="margin-top:8px;font-size:0.8rem;color:#888;display:flex;justify-content:space-between;">
+          <span id="statBarLabel">0 sur 0 élèves inscrits</span>
+          <span>🎈 <span id="statConnected">0</span> connectés</span>
+        </div>
       </div>
     </div>
 
@@ -679,14 +676,14 @@ socket.on('groupError', ({ message }) => showToast(message));
 
 // ===== RENDU =====
 function render(state) {
-  // Stats
-  const activeThemes = state.themes.filter(t => state.groups[t.id].members.length > 0).length;
-  const totalGroups = activeThemes + state.autreGroups.length;
+  // Stats (visibles seulement pour les délégués)
   const inGroup = state.themes.reduce((a, t) => a + state.groups[t.id].members.length, 0) + state.autreGroups.length;
+  const total = state.students.length;
+  const pct = total > 0 ? Math.round((inGroup / total) * 100) : 0;
 
-  document.getElementById('statGroups').textContent = totalGroups;
-  document.getElementById('statStudents').textContent = state.students.length;
   document.getElementById('statInGroup').textContent = inGroup;
+  document.getElementById('statBar').style.width = pct + '%';
+  document.getElementById('statBarLabel').textContent = `${inGroup} sur ${total} élèves inscrits`;
   document.getElementById('statConnected').textContent = state.connected;
 
   // Thèmes classiques (illimité)
