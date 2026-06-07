@@ -515,10 +515,10 @@
     <h2 class="greeting" id="greetingLine">Salut <span id="greetName"></span> 👋</h2>
     <p class="greeting-sub">Choisis un groupe à rejoindre.</p>
 
-    <div id="statsGrid" style="display:none; margin-bottom:28px;">
+    <div id="statsGrid" style="margin-bottom:28px;">
       <div style="background:white;border-radius:16px;padding:18px 20px;box-shadow:var(--shadow);">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-          <span style="font-weight:800;font-size:0.95rem;">🍽️ Ont choisi un groupe</span>
+          <span style="font-weight:800;font-size:0.95rem;">🍽️ Ont choisi un thème</span>
           <span style="font-size:1.3rem;font-weight:900;" id="statInGroup">0</span>
         </div>
         <div style="background:#eee;border-radius:999px;height:10px;overflow:hidden;">
@@ -627,8 +627,7 @@ socket.on('joined', ({ name, delegateLabel, isAdmin: admin }) => {
     ? `Salut ${esc(name)}, ${esc(delegateLabel)} 👋`
     : `Salut ${esc(name)} 👋`;
 
-  // Les stats du haut ne sont utiles qu'aux délégués
-  document.getElementById('statsGrid').style.display = isDelegate ? 'grid' : 'none';
+  document.getElementById('statsGrid').style.display = 'block';
 
   document.getElementById('headerName').innerHTML = `👋 ${esc(name)}`;
   document.getElementById('landing').style.display = 'none';
@@ -678,12 +677,12 @@ socket.on('groupError', ({ message }) => showToast(message));
 function render(state) {
   // Stats (visibles seulement pour les délégués)
   const inGroup = state.themes.reduce((a, t) => a + state.groups[t.id].members.length, 0) + state.autreGroups.length;
-  const total = state.students.length;
-  const pct = total > 0 ? Math.round((inGroup / total) * 100) : 0;
+  const CLASS_SIZE = 23;
+  const pct = Math.round((inGroup / CLASS_SIZE) * 100);
 
   document.getElementById('statInGroup').textContent = inGroup;
   document.getElementById('statBar').style.width = pct + '%';
-  document.getElementById('statBarLabel').textContent = `${inGroup} sur ${total} élèves inscrits`;
+  document.getElementById('statBarLabel').textContent = `${inGroup} sur ${CLASS_SIZE} élèves`;
   document.getElementById('statConnected').textContent = state.connected;
 
   // Thèmes classiques (illimité)
