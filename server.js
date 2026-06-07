@@ -16,6 +16,7 @@ const THEMES = [
   { id: 'gateau',    label: 'Gâteau',    emoji: '🎂' },
   { id: 'chips',     label: 'Chips',     emoji: '🥨' },
   { id: 'bonbon',    label: 'Bonbons',   emoji: '🍬' },
+  { id: 'vaisselle', label: 'Verres, papier & assiettes', emoji: '🥤' },
 ];
 // "Autre" est spécial : chacun crée sa propre entrée (1 personne) avec ce qu'il apporte
 const AUTRE = { id: 'autre', label: 'Autre', emoji: '✨' };
@@ -208,7 +209,7 @@ io.on('connection', (socket) => {
     // Si l'élève est déjà dans ce groupe, on ne compte pas sa place en double
     const alreadyHere = group.members.includes(name);
     if (!alreadyHere && group.members.length >= MAX_PER_THEME) {
-      socket.emit('groupError', { message: 'Ce groupe est complet (5 max) !' });
+      socket.emit('groupError', { message: 'Désolé, le groupe est complet !' });
       return;
     }
 
