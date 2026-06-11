@@ -475,17 +475,14 @@
   }
   .conn-banner.show { transform: translateY(0); }
 
-  /* ===== INTRO CINÉMATIQUE ===== */
+  /* ===== INTRO CINÉMATIQUE : travelling caméra ===== */
   #intro {
     position: fixed;
     inset: 0;
     z-index: 500;
-    background: linear-gradient(165deg, #16162e, #28285a 55%, #16162e);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    background: #16162e;
     overflow: hidden;
-    transition: opacity .7s ease, visibility .7s;
+    transition: opacity .6s ease, visibility .6s;
   }
   #intro.hide { opacity: 0; visibility: hidden; pointer-events: none; }
   .intro-skip {
@@ -499,103 +496,75 @@
     font-weight: 700;
     font-size: 0.85rem;
     cursor: pointer;
-    z-index: 2;
+    z-index: 10;
   }
-  .intro-title {
-    color: #fff;
-    font-size: 1.8rem;
-    font-weight: 900;
-    text-align: center;
-    margin: 6vh 20px 0;
-    opacity: 0;
-    animation: introTitleIn .8s cubic-bezier(.22,1.2,.36,1) .2s forwards;
-  }
-  .intro-title small {
-    display: block;
-    font-size: 0.9rem;
-    font-weight: 600;
-    opacity: 0.7;
-    margin-top: 6px;
-  }
-  @keyframes introTitleIn {
-    from { opacity: 0; transform: translateY(-24px) scale(.9); }
-    to   { opacity: 1; transform: none; }
-  }
-  .intro-stage {
-    position: relative;
-    width: 100%;
-    max-width: 430px;
-    flex: 1;
-    margin: 3vh 0 4vh;
-  }
-  .intro-svg { position: absolute; inset: 0; width: 100%; height: 100%; }
-  .intro-path {
-    fill: none;
-    stroke: url(#introGrad);
-    stroke-width: 4;
-    stroke-linecap: round;
-    filter: drop-shadow(0 0 6px rgba(139,107,240,0.8));
-  }
-  .intro-stop {
-    position: absolute;
-    width: 46%;
-    background: rgba(255,255,255,0.07);
-    border: 1px solid rgba(255,255,255,0.16);
-    backdrop-filter: blur(6px);
-    border-radius: 16px;
-    padding: 10px 12px;
-    opacity: 0;
-    transform: scale(.6);
-  }
-  .intro-stop.show { animation: stopIn .55s cubic-bezier(.34,1.56,.64,1) forwards; }
-  @keyframes stopIn {
-    from { opacity: 0; transform: scale(.6) translateY(14px); }
-    to   { opacity: 1; transform: none; }
-  }
-  .intro-stop .is-head {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    color: #fff;
-    font-weight: 800;
-    font-size: 0.82rem;
-  }
-  .intro-stop .is-emoji { font-size: 1.25rem; }
-  .intro-chips { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 7px; }
-  .intro-chip {
-    background: rgba(255,255,255,0.14);
-    color: #fff;
-    border-radius: 999px;
-    padding: 2px 9px;
-    font-size: 0.68rem;
-    font-weight: 600;
-    opacity: 0;
-    animation: chipIn .4s ease forwards;
-  }
-  .intro-chip.none { font-style: italic; animation: none; opacity: 0.5; }
-  @keyframes chipIn {
-    from { opacity: 0; transform: translateY(6px); }
-    to   { opacity: 1; transform: none; }
-  }
-  .intro-end {
+  /* Chaque scène = un thème en plein écran, empilées les unes sur les autres */
+  .intro-scene {
     position: absolute;
     inset: 0;
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
-    font-size: 2.1rem;
-    font-weight: 900;
-    color: #fff;
-    text-shadow: 0 4px 30px rgba(139,107,240,0.9);
+    text-align: center;
+    padding: 24px;
     opacity: 0;
-    pointer-events: none;
+    transform: scale(1.5);
+    filter: blur(14px);
+    transition: opacity .55s ease, transform .9s cubic-bezier(.22,.8,.36,1), filter .7s ease;
+    background: radial-gradient(circle at 50% 40%, var(--sc, #5b8dee) 0%, #16162e 75%);
   }
-  .intro-end.show { animation: endPop .8s cubic-bezier(.34,1.56,.64,1) forwards; }
-  @keyframes endPop {
-    0%   { opacity: 0; transform: scale(.4); }
-    60%  { opacity: 1; transform: scale(1.15); }
-    100% { opacity: 1; transform: scale(1); }
+  /* La scène active : caméra "arrive" dessus (zoom-out vers normal) */
+  .intro-scene.active {
+    opacity: 1;
+    transform: scale(1);
+    filter: blur(0);
+    z-index: 2;
   }
+  /* La scène qu'on quitte : caméra "fonce dedans" (zoom-in + flou + disparition) */
+  .intro-scene.leaving {
+    opacity: 0;
+    transform: scale(2.4);
+    filter: blur(22px);
+    transition: opacity .5s ease, transform .6s cubic-bezier(.55,0,1,.45), filter .5s ease;
+    z-index: 3;
+  }
+  .intro-scene .is-emoji {
+    font-size: 5rem;
+    margin-bottom: 14px;
+    transform: scale(.5);
+    opacity: 0;
+    transition: transform .6s cubic-bezier(.34,1.56,.64,1) .15s, opacity .4s ease .15s;
+  }
+  .intro-scene.active .is-emoji { transform: scale(1); opacity: 1; }
+  .intro-scene .is-label {
+    color: #fff;
+    font-size: 1.6rem;
+    font-weight: 900;
+    margin-bottom: 18px;
+    opacity: 0;
+    transform: translateY(16px);
+    transition: transform .5s ease .25s, opacity .5s ease .25s;
+  }
+  .intro-scene.active .is-label { opacity: 1; transform: none; }
+  .intro-chips { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; max-width: 360px; }
+  .intro-chip {
+    background: rgba(255,255,255,0.14);
+    border: 1px solid rgba(255,255,255,0.2);
+    color: #fff;
+    border-radius: 999px;
+    padding: 8px 18px;
+    font-size: 0.95rem;
+    font-weight: 700;
+    opacity: 0;
+    transform: translateY(14px) scale(.8);
+    transition: transform .4s cubic-bezier(.34,1.56,.64,1), opacity .35s ease;
+  }
+  .intro-chip.none { font-style: italic; opacity: 0; font-weight: 400; }
+  .intro-scene.active .intro-chip { opacity: 1; transform: none; }
+  .intro-scene.active .intro-chip.none { opacity: 0.6; }
+  /* Scène finale */
+  .intro-scene.intro-final .is-label { font-size: 2.3rem; }
 
   /* ===== ANIMATION D'ENTRÉE (motion design) =====
      La cascade du landing ne démarre qu'à la fin de l'intro
@@ -700,23 +669,10 @@
   <div class="bg-blob blob5"></div>
 </div>
 
-<!-- ===== INTRO CINÉMATIQUE ===== -->
+<!-- ===== INTRO CINÉMATIQUE : travelling caméra ===== -->
 <div id="intro">
   <button class="intro-skip" onclick="skipIntro()">Passer →</button>
-  <div class="intro-title">🎉 Goûter de fin d'année<small>jeudi 18 · 14h30</small></div>
-  <div class="intro-stage" id="introStage">
-    <svg class="intro-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
-      <defs>
-        <linearGradient id="introGrad" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stop-color="#5b8dee"/>
-          <stop offset="0.5" stop-color="#8b6bf0"/>
-          <stop offset="1" stop-color="#f07830"/>
-        </linearGradient>
-      </defs>
-      <path class="intro-path" id="introPath" vector-effect="non-scaling-stroke"/>
-    </svg>
-    <div class="intro-end" id="introEnd">C'est parti ! 🎉</div>
-  </div>
+  <div id="introScenes"></div>
 </div>
 
 <!-- ===== LANDING ===== -->
@@ -912,11 +868,13 @@ socket.on('state', (state) => {
   }
 });
 
-// ===== INTRO CINÉMATIQUE (~7s) =====
-// Un trait lumineux se dessine et passe par chaque thème ; les prénoms
-// des inscrits apparaissent au passage. Purement visuel : aucune donnée modifiée.
+// ===== INTRO CINÉMATIQUE : travelling caméra (~8s) =====
+// La caméra "fonce" d'un thème à l'autre en plein écran, en montrant les
+// vrais inscrits de chaque groupe. Purement visuel : aucune donnée modifiée.
 let introStarted = false;
+let introTimers = [];
 function endIntro() {
+  introTimers.forEach(clearTimeout);
   document.getElementById('intro').classList.add('hide');
   document.body.classList.add('intro-over'); // déclenche la cascade du landing
 }
@@ -927,70 +885,50 @@ function skipIntro() {
 function runIntro(state) {
   if (introStarted) return;
   introStarted = true;
-  const intro = document.getElementById('intro');
 
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     endIntro();
     return;
   }
 
-  const stage = document.getElementById('introStage');
-  const themes = state.themes;
-  const n = themes.length;
+  const colors = ['#5b8dee', '#f07830', '#8b6bf0', '#2bbf8a', '#e0527a', '#3aa0c9', '#caa15a'];
+  const root = document.getElementById('introScenes');
+  root.innerHTML = '';
 
-  // Trace un chemin en zigzag qui passe par chaque thème
-  const ys = themes.map((_, i) => 10 + i * (80 / (n - 1)));
-  const xs = themes.map((_, i) => (i % 2 === 0 ? 30 : 70));
-  let d = `M ${xs[0]} ${ys[0]}`;
-  for (let i = 1; i < n; i++) {
-    const my = (ys[i - 1] + ys[i]) / 2;
-    d += ` C ${xs[i - 1]} ${my}, ${xs[i]} ${my}, ${xs[i]} ${ys[i]}`;
-  }
-  const path = document.getElementById('introPath');
-  path.setAttribute('d', d);
-  const len = path.getTotalLength();
-  path.style.strokeDasharray = len;
-  path.style.strokeDashoffset = len;
-
-  const LINE_START = 900;   // le trait démarre après le titre
-  const LINE_DUR = 4200;    // durée du tracé
-  path.style.transition = `stroke-dashoffset ${LINE_DUR}ms ease-in-out ${LINE_START}ms`;
-  requestAnimationFrame(() => { path.style.strokeDashoffset = 0; });
-
-  // Une carte par thème, qui pop quand le trait l'atteint
-  themes.forEach((t, i) => {
-    const stop = document.createElement('div');
-    stop.className = 'intro-stop';
-    stop.style.top = `calc(${ys[i]}% - 30px)`;
-    if (xs[i] === 30) stop.style.left = '4%'; else stop.style.right = '4%';
-
+  const scenes = state.themes.map((t, i) => {
     const members = state.groups[t.id].members;
-    const showTime = LINE_START + ((i + 0.3) / n) * LINE_DUR;
-
-    let chips = '';
-    if (members.length === 0) {
-      chips = `<span class="intro-chip none">personne encore…</span>`;
-    } else {
-      members.slice(0, 4).forEach((m, j) => {
-        chips += `<span class="intro-chip" style="animation-delay:${Math.round(showTime + 250 + j * 110)}ms">${esc(m)}</span>`;
-      });
-      if (members.length > 4) {
-        chips += `<span class="intro-chip" style="animation-delay:${Math.round(showTime + 250 + 4 * 110)}ms">+${members.length - 4}</span>`;
-      }
-    }
-
-    stop.innerHTML = `
-      <div class="is-head"><span class="is-emoji">${t.emoji}</span><span>${esc(t.label)}</span></div>
-      <div class="intro-chips">${chips}</div>
-    `;
-    stage.appendChild(stop);
-    setTimeout(() => stop.classList.add('show'), showTime);
+    let chips = members.length
+      ? members.map(m => `<span class="intro-chip">${esc(m)}</span>`).join('')
+      : `<span class="intro-chip none">personne encore…</span>`;
+    return `
+      <div class="intro-scene" style="--sc:${colors[i % colors.length]}">
+        <div class="is-emoji">${t.emoji}</div>
+        <div class="is-label">${esc(t.label)}</div>
+        <div class="intro-chips">${chips}</div>
+      </div>`;
   });
+  scenes.push(`
+    <div class="intro-scene intro-final" style="--sc:#f0c34a">
+      <div class="is-emoji">🎉</div>
+      <div class="is-label">C'est parti !</div>
+    </div>`);
+  root.innerHTML = scenes.join('');
 
-  // Final : "C'est parti !" puis on révèle la page
-  const T_END = LINE_START + LINE_DUR + 400;
-  setTimeout(() => document.getElementById('introEnd').classList.add('show'), T_END);
-  setTimeout(endIntro, T_END + 1400);
+  const els = Array.from(root.querySelectorAll('.intro-scene'));
+  const HOLD = 1100;   // temps où la scène est nette, à l'arrêt
+  const TRAVEL = 750;  // durée du "saut" caméra vers la suivante
+
+  els[0].classList.add('active');
+  for (let i = 1; i < els.length; i++) {
+    introTimers.push(setTimeout(() => {
+      els[i - 1].classList.remove('active');
+      els[i - 1].classList.add('leaving');
+      els[i].classList.add('active');
+    }, i * (HOLD + TRAVEL)));
+  }
+
+  const T_END = els.length * (HOLD + TRAVEL) + HOLD;
+  introTimers.push(setTimeout(endIntro, T_END));
 }
 // Si le serveur met trop de temps (réveil Render), on n'attend pas : on passe l'intro
 setTimeout(() => { if (!introStarted) skipIntro(); }, 2500);
