@@ -11,12 +11,12 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 // 4 thèmes "classiques" : nom = thème, sans limite de places
 const THEMES = [
-  { id: 'boisson',   label: 'Boisson',   emoji: '🥤' },
-  { id: 'saucisson', label: 'Saucisson', emoji: '🥖' },
-  { id: 'gateau',    label: 'Gâteau',    emoji: '🎂' },
-  { id: 'chips',     label: 'Chips',     emoji: '🥨' },
-  { id: 'bonbon',    label: 'Bonbons',   emoji: '🍬' },
-  { id: 'vaisselle', label: 'Verres & assiettes carton', emoji: '🥤' },
+  { id: 'boisson',   label: 'Boisson',   emoji: '🥤', max: 5 },
+  { id: 'saucisson', label: 'Saucisson', emoji: '🥖', max: 5 },
+  { id: 'gateau',    label: 'Gâteau',    emoji: '🎂', max: 5 },
+  { id: 'chips',     label: 'Chips',     emoji: '🥨', max: 5 },
+  { id: 'bonbon',    label: 'Bonbons',   emoji: '🍬', max: 5 },
+  { id: 'vaisselle', label: 'Verres & assiettes carton', emoji: '🥤', max: 1 },
 ];
 // "Autre" est spécial : chacun crée sa propre entrée (1 personne) avec ce qu'il apporte
 const AUTRE = { id: 'autre', label: 'Autre', emoji: '✨' };
@@ -197,18 +197,17 @@ io.on('connection', (socket) => {
     broadcastState();
   });
 
-  const MAX_PER_THEME = 5;
-
-  // Rejoindre un thème classique — max 5 personnes
+  // Rejoindre un thème classique — limite propre à chaque thème
   socket.on('joinTheme', ({ themeId }) => {
     const name = socket.data.name;
     if (!name) return;
     const group = groups[themeId];
     if (!group) return;
+    const theme = THEMES.find(t => t.id === themeId);
 
     // Si l'élève est déjà dans ce groupe, on ne compte pas sa place en double
     const alreadyHere = group.members.includes(name);
-    if (!alreadyHere && group.members.length >= MAX_PER_THEME) {
+    if (!alreadyHere && group.members.length >= theme.max) {
       socket.emit('groupError', { message: 'Désolé, le groupe est complet !' });
       return;
     }

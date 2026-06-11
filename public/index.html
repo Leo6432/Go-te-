@@ -475,6 +475,40 @@
   }
   .conn-banner.show { transform: translateY(0); }
 
+  /* ===== ANIMATION D'ENTRÉE (motion design) ===== */
+  #landing > * {
+    opacity: 0;
+    animation: heroIn .7s cubic-bezier(.22,1.2,.36,1) forwards;
+  }
+  #landing .event-badge   { animation-delay: .1s; }
+  #landing .hero-title    { animation-delay: .25s; }
+  #landing .hero-sub      { animation-delay: .45s; }
+  #landing .countdown-card{ animation-delay: .65s; }
+  #landing .name-card     { animation-delay: .85s; }
+
+  @keyframes heroIn {
+    0%   { opacity: 0; transform: translateY(40px) scale(0.92); filter: blur(6px); }
+    60%  { filter: blur(0); }
+    100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
+  }
+
+  .hero-title span {
+    display: inline-block;
+    animation: titlePop .6s cubic-bezier(.34,1.56,.64,1) 1s backwards;
+  }
+  @keyframes titlePop {
+    0%   { transform: scale(0) rotate(-8deg); }
+    70%  { transform: scale(1.15) rotate(2deg); }
+    100% { transform: scale(1) rotate(0); }
+  }
+
+  /* les emojis du fond entrent en douceur aussi */
+  .bg-food { animation: foodFloat linear infinite, foodIn 1.2s ease backwards; }
+  @keyframes foodIn {
+    from { opacity: 0; transform: scale(0); }
+    to   { opacity: 0.14; transform: scale(1); }
+  }
+
   /* ===== COMPTE À REBOURS ===== */
   .countdown-card {
     width: 100%;
@@ -642,8 +676,8 @@ let isAdmin = false;    // Léo : peut ajouter un élève dans un groupe
     el.style.top = (Math.random() * 96) + '%';
     el.style.left = (Math.random() * 96) + '%';
     el.style.fontSize = (1.2 + Math.random() * 1.6).toFixed(2) + 'rem';
-    el.style.animationDuration = (10 + Math.random() * 14).toFixed(1) + 's';
-    el.style.animationDelay = '-' + (Math.random() * 12).toFixed(1) + 's';
+    el.style.animationDuration = (10 + Math.random() * 14).toFixed(1) + 's, 1.2s';
+    el.style.animationDelay = '-' + (Math.random() * 12).toFixed(1) + 's, ' + (Math.random() * 0.9).toFixed(2) + 's';
     canvas.appendChild(el);
   }
 })();
@@ -755,7 +789,7 @@ function render(state) {
     const group = state.groups[theme.id];
     const isMine = myLoc && myLoc.type === 'theme' && myLoc.id === theme.id;
 
-    const MAX = 5;
+    const MAX = theme.max || 5;
     const isFull = group.members.length >= MAX && !isMine;
 
     const card = document.createElement('div');
@@ -773,7 +807,7 @@ function render(state) {
     const btnHtml = isMine
       ? `<button class="btn-join leave" onclick="leaveGroup()">← Quitter le groupe</button>`
       : isFull
-        ? `<button class="btn-join" disabled style="opacity:0.45;cursor:not-allowed;">🔒 Complet (5/5)</button>`
+        ? `<button class="btn-join" disabled style="opacity:0.45;cursor:not-allowed;">🔒 Complet (${MAX}/${MAX})</button>`
         : `<button class="btn-join" onclick="joinTheme('${theme.id}')">→ Rejoindre</button>`;
 
     // Léo (admin) peut ajouter un prénom dans n'importe quel groupe
@@ -785,7 +819,7 @@ function render(state) {
       <div class="group-deco">${theme.emoji}</div>
       <div class="theme-badge">${theme.emoji} ${theme.label}</div>
       <div class="group-name">${theme.label}</div>
-      <div class="count-pill">👤 ${group.members.length}/5 ${group.members.length > 1 ? 'inscrits' : 'inscrit'}</div>
+      <div class="count-pill">👤 ${group.members.length}/${MAX} ${group.members.length > 1 ? 'inscrits' : 'inscrit'}</div>
       <ul class="members-list">${membersHtml}</ul>
       ${btnHtml}
       ${adminBtn}
