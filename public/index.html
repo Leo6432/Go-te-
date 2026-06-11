@@ -475,6 +475,59 @@
   }
   .conn-banner.show { transform: translateY(0); }
 
+  /* ===== COMPTE À REBOURS ===== */
+  .countdown-card {
+    width: 100%;
+    max-width: 380px;
+    background: linear-gradient(135deg, var(--blue), #8b6bf0);
+    border-radius: var(--radius);
+    box-shadow: 0 8px 30px rgba(91,141,238,0.35);
+    padding: 22px 20px;
+    margin-bottom: 22px;
+    text-align: center;
+    color: white;
+    animation: cardPulse 3s ease-in-out infinite;
+  }
+  @keyframes cardPulse {
+    0%, 100% { transform: scale(1); box-shadow: 0 8px 30px rgba(91,141,238,0.35); }
+    50% { transform: scale(1.015); box-shadow: 0 12px 40px rgba(139,107,240,0.45); }
+  }
+  .countdown-label {
+    font-weight: 800;
+    font-size: 0.95rem;
+    margin-bottom: 14px;
+    letter-spacing: 0.3px;
+  }
+  .countdown-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 8px;
+  }
+  .cd-unit {
+    background: rgba(255,255,255,0.18);
+    border-radius: 14px;
+    padding: 10px 4px;
+    backdrop-filter: blur(4px);
+  }
+  .cd-num {
+    font-size: 1.6rem;
+    font-weight: 900;
+    font-variant-numeric: tabular-nums;
+    animation: cdPop .35s ease;
+  }
+  @keyframes cdPop {
+    from { transform: scale(1.25); opacity: 0.4; }
+    to   { transform: scale(1);    opacity: 1; }
+  }
+  .cd-txt {
+    font-size: 0.65rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    opacity: 0.85;
+    margin-top: 2px;
+  }
+
   .hidden { display: none !important; }
 </style>
 </head>
@@ -494,6 +547,16 @@
   <div class="event-badge">🎉 Goûter de fin d'année</div>
   <h1 class="hero-title">On organise<br>notre <span>goûter&nbsp;!</span></h1>
   <p class="hero-sub">Rejoins un groupe avec tes potes, choisis un thème, et viens partager le meilleur goûter de l'année.</p>
+
+  <div class="countdown-card">
+    <div class="countdown-label">⏳ Rendez-vous jeudi 18 à 14h30</div>
+    <div class="countdown-grid">
+      <div class="cd-unit"><div class="cd-num" id="cdDays">0</div><div class="cd-txt">jours</div></div>
+      <div class="cd-unit"><div class="cd-num" id="cdHours">00</div><div class="cd-txt">heures</div></div>
+      <div class="cd-unit"><div class="cd-num" id="cdMins">00</div><div class="cd-txt">min</div></div>
+      <div class="cd-unit"><div class="cd-num" id="cdSecs">00</div><div class="cd-txt">sec</div></div>
+    </div>
+  </div>
 
   <div class="name-card">
     <label>Ton prénom</label>
@@ -824,6 +887,44 @@ document.getElementById('modalInput').addEventListener('keydown', e => {
 });
 
 function leaveGroup() { socket.emit('leaveGroup'); }
+
+// ===== COMPTE À REBOURS : jeudi 18 à 14h30 =====
+(function countdown() {
+  // Prochain jeudi 18 (du mois courant ou suivant si déjà passé) à 14h30
+  function targetDate() {
+    const now = new Date();
+    let d = new Date(now.getFullYear(), now.getMonth(), 18, 14, 30, 0);
+    if (d <= now) d = new Date(now.getFullYear(), now.getMonth() + 1, 18, 14, 30, 0);
+    return d;
+  }
+  const target = targetDate();
+  const elDays = document.getElementById('cdDays');
+  const elHours = document.getElementById('cdHours');
+  const elMins = document.getElementById('cdMins');
+  const elSecs = document.getElementById('cdSecs');
+
+  function pad(n) { return String(n).padStart(2, '0'); }
+
+  function tick() {
+    const diff = Math.max(0, target - new Date());
+    const days = Math.floor(diff / 86400000);
+    const hours = Math.floor(diff % 86400000 / 3600000);
+    const mins = Math.floor(diff % 3600000 / 60000);
+    const secs = Math.floor(diff % 60000 / 1000);
+
+    elDays.textContent = days;
+    elHours.textContent = pad(hours);
+    elMins.textContent = pad(mins);
+    if (elSecs.textContent !== pad(secs)) {
+      elSecs.textContent = pad(secs);
+      elSecs.style.animation = 'none';
+      void elSecs.offsetWidth;
+      elSecs.style.animation = 'cdPop .35s ease';
+    }
+  }
+  tick();
+  setInterval(tick, 1000);
+})();
 
 // ===== UTILS =====
 function showToast(msg) {
