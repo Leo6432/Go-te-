@@ -475,16 +475,140 @@
   }
   .conn-banner.show { transform: translateY(0); }
 
-  /* ===== ANIMATION D'ENTRÉE (motion design) ===== */
-  #landing > * {
+  /* ===== INTRO CINÉMATIQUE ===== */
+  #intro {
+    position: fixed;
+    inset: 0;
+    z-index: 500;
+    background: linear-gradient(165deg, #16162e, #28285a 55%, #16162e);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    overflow: hidden;
+    transition: opacity .7s ease, visibility .7s;
+  }
+  #intro.hide { opacity: 0; visibility: hidden; pointer-events: none; }
+  .intro-skip {
+    position: absolute;
+    top: 16px; right: 16px;
+    background: rgba(255,255,255,0.12);
+    color: #fff;
+    border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 999px;
+    padding: 8px 16px;
+    font-weight: 700;
+    font-size: 0.85rem;
+    cursor: pointer;
+    z-index: 2;
+  }
+  .intro-title {
+    color: #fff;
+    font-size: 1.8rem;
+    font-weight: 900;
+    text-align: center;
+    margin: 6vh 20px 0;
     opacity: 0;
+    animation: introTitleIn .8s cubic-bezier(.22,1.2,.36,1) .2s forwards;
+  }
+  .intro-title small {
+    display: block;
+    font-size: 0.9rem;
+    font-weight: 600;
+    opacity: 0.7;
+    margin-top: 6px;
+  }
+  @keyframes introTitleIn {
+    from { opacity: 0; transform: translateY(-24px) scale(.9); }
+    to   { opacity: 1; transform: none; }
+  }
+  .intro-stage {
+    position: relative;
+    width: 100%;
+    max-width: 430px;
+    flex: 1;
+    margin: 3vh 0 4vh;
+  }
+  .intro-svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .intro-path {
+    fill: none;
+    stroke: url(#introGrad);
+    stroke-width: 4;
+    stroke-linecap: round;
+    filter: drop-shadow(0 0 6px rgba(139,107,240,0.8));
+  }
+  .intro-stop {
+    position: absolute;
+    width: 46%;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.16);
+    backdrop-filter: blur(6px);
+    border-radius: 16px;
+    padding: 10px 12px;
+    opacity: 0;
+    transform: scale(.6);
+  }
+  .intro-stop.show { animation: stopIn .55s cubic-bezier(.34,1.56,.64,1) forwards; }
+  @keyframes stopIn {
+    from { opacity: 0; transform: scale(.6) translateY(14px); }
+    to   { opacity: 1; transform: none; }
+  }
+  .intro-stop .is-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: #fff;
+    font-weight: 800;
+    font-size: 0.82rem;
+  }
+  .intro-stop .is-emoji { font-size: 1.25rem; }
+  .intro-chips { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 7px; }
+  .intro-chip {
+    background: rgba(255,255,255,0.14);
+    color: #fff;
+    border-radius: 999px;
+    padding: 2px 9px;
+    font-size: 0.68rem;
+    font-weight: 600;
+    opacity: 0;
+    animation: chipIn .4s ease forwards;
+  }
+  .intro-chip.none { font-style: italic; animation: none; opacity: 0.5; }
+  @keyframes chipIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: none; }
+  }
+  .intro-end {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.1rem;
+    font-weight: 900;
+    color: #fff;
+    text-shadow: 0 4px 30px rgba(139,107,240,0.9);
+    opacity: 0;
+    pointer-events: none;
+  }
+  .intro-end.show { animation: endPop .8s cubic-bezier(.34,1.56,.64,1) forwards; }
+  @keyframes endPop {
+    0%   { opacity: 0; transform: scale(.4); }
+    60%  { opacity: 1; transform: scale(1.15); }
+    100% { opacity: 1; transform: scale(1); }
+  }
+
+  /* ===== ANIMATION D'ENTRÉE (motion design) =====
+     La cascade du landing ne démarre qu'à la fin de l'intro
+     (classe .intro-over posée sur <body>). */
+  #landing > * { opacity: 0; }
+  .intro-over #landing > * {
     animation: heroIn .7s cubic-bezier(.22,1.2,.36,1) forwards;
   }
-  #landing .event-badge   { animation-delay: .1s; }
-  #landing .hero-title    { animation-delay: .25s; }
-  #landing .hero-sub      { animation-delay: .45s; }
-  #landing .countdown-card{ animation-delay: .65s; }
-  #landing .name-card     { animation-delay: .85s; }
+  .intro-over #landing .event-badge   { animation-delay: .1s; }
+  .intro-over #landing .hero-title    { animation-delay: .25s; }
+  .intro-over #landing .hero-sub      { animation-delay: .45s; }
+  .intro-over #landing .countdown-card{ animation-delay: .65s; }
+  .intro-over #landing .name-card     { animation-delay: .85s; }
 
   @keyframes heroIn {
     0%   { opacity: 0; transform: translateY(40px) scale(0.92); filter: blur(6px); }
@@ -574,6 +698,25 @@
   <div class="bg-blob blob3"></div>
   <div class="bg-blob blob4"></div>
   <div class="bg-blob blob5"></div>
+</div>
+
+<!-- ===== INTRO CINÉMATIQUE ===== -->
+<div id="intro">
+  <button class="intro-skip" onclick="skipIntro()">Passer →</button>
+  <div class="intro-title">🎉 Goûter de fin d'année<small>jeudi 18 · 14h30</small></div>
+  <div class="intro-stage" id="introStage">
+    <svg class="intro-svg" viewBox="0 0 100 100" preserveAspectRatio="none">
+      <defs>
+        <linearGradient id="introGrad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stop-color="#5b8dee"/>
+          <stop offset="0.5" stop-color="#8b6bf0"/>
+          <stop offset="1" stop-color="#f07830"/>
+        </linearGradient>
+      </defs>
+      <path class="intro-path" id="introPath" vector-effect="non-scaling-stroke"/>
+    </svg>
+    <div class="intro-end" id="introEnd">C'est parti ! 🎉</div>
+  </div>
 </div>
 
 <!-- ===== LANDING ===== -->
@@ -760,6 +903,7 @@ function recomputeMyLoc(state) {
 
 socket.on('state', (state) => {
   lastState = state;
+  runIntro(state); // ne se lance qu'une fois, avec les vraies données
   if (myName) {
     recomputeMyLoc(state);
     render(state);
@@ -767,6 +911,89 @@ socket.on('state', (state) => {
     document.getElementById('statConnected').textContent = state.connected;
   }
 });
+
+// ===== INTRO CINÉMATIQUE (~7s) =====
+// Un trait lumineux se dessine et passe par chaque thème ; les prénoms
+// des inscrits apparaissent au passage. Purement visuel : aucune donnée modifiée.
+let introStarted = false;
+function endIntro() {
+  document.getElementById('intro').classList.add('hide');
+  document.body.classList.add('intro-over'); // déclenche la cascade du landing
+}
+function skipIntro() {
+  introStarted = true;
+  endIntro();
+}
+function runIntro(state) {
+  if (introStarted) return;
+  introStarted = true;
+  const intro = document.getElementById('intro');
+
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    endIntro();
+    return;
+  }
+
+  const stage = document.getElementById('introStage');
+  const themes = state.themes;
+  const n = themes.length;
+
+  // Trace un chemin en zigzag qui passe par chaque thème
+  const ys = themes.map((_, i) => 10 + i * (80 / (n - 1)));
+  const xs = themes.map((_, i) => (i % 2 === 0 ? 30 : 70));
+  let d = `M ${xs[0]} ${ys[0]}`;
+  for (let i = 1; i < n; i++) {
+    const my = (ys[i - 1] + ys[i]) / 2;
+    d += ` C ${xs[i - 1]} ${my}, ${xs[i]} ${my}, ${xs[i]} ${ys[i]}`;
+  }
+  const path = document.getElementById('introPath');
+  path.setAttribute('d', d);
+  const len = path.getTotalLength();
+  path.style.strokeDasharray = len;
+  path.style.strokeDashoffset = len;
+
+  const LINE_START = 900;   // le trait démarre après le titre
+  const LINE_DUR = 4200;    // durée du tracé
+  path.style.transition = `stroke-dashoffset ${LINE_DUR}ms ease-in-out ${LINE_START}ms`;
+  requestAnimationFrame(() => { path.style.strokeDashoffset = 0; });
+
+  // Une carte par thème, qui pop quand le trait l'atteint
+  themes.forEach((t, i) => {
+    const stop = document.createElement('div');
+    stop.className = 'intro-stop';
+    stop.style.top = `calc(${ys[i]}% - 30px)`;
+    if (xs[i] === 30) stop.style.left = '4%'; else stop.style.right = '4%';
+
+    const members = state.groups[t.id].members;
+    const showTime = LINE_START + ((i + 0.3) / n) * LINE_DUR;
+
+    let chips = '';
+    if (members.length === 0) {
+      chips = `<span class="intro-chip none">personne encore…</span>`;
+    } else {
+      members.slice(0, 4).forEach((m, j) => {
+        chips += `<span class="intro-chip" style="animation-delay:${Math.round(showTime + 250 + j * 110)}ms">${esc(m)}</span>`;
+      });
+      if (members.length > 4) {
+        chips += `<span class="intro-chip" style="animation-delay:${Math.round(showTime + 250 + 4 * 110)}ms">+${members.length - 4}</span>`;
+      }
+    }
+
+    stop.innerHTML = `
+      <div class="is-head"><span class="is-emoji">${t.emoji}</span><span>${esc(t.label)}</span></div>
+      <div class="intro-chips">${chips}</div>
+    `;
+    stage.appendChild(stop);
+    setTimeout(() => stop.classList.add('show'), showTime);
+  });
+
+  // Final : "C'est parti !" puis on révèle la page
+  const T_END = LINE_START + LINE_DUR + 400;
+  setTimeout(() => document.getElementById('introEnd').classList.add('show'), T_END);
+  setTimeout(endIntro, T_END + 1400);
+}
+// Si le serveur met trop de temps (réveil Render), on n'attend pas : on passe l'intro
+setTimeout(() => { if (!introStarted) skipIntro(); }, 2500);
 
 socket.on('groupError', ({ message }) => showToast(message));
 
