@@ -19,9 +19,9 @@ const DELEGATES = {
 const ADMIN_KEY = 'leo';
 
 const SIZES = ['Petite', 'Grande', 'Méga'];
-const SIZE_MAX = { Petite: 1, Grande: 2, 'Méga': 4 };
+const SIZE_MAX = { Petite: 1, Grande: 3, 'Méga': 4 };
 const SIZE_PRICE = { Petite: '9€', Grande: '13,50€', 'Méga': '18,50€' };
-const SIZE_LABEL = { Petite: '1 pers.', Grande: '2 pers.', 'Méga': '3/4 pers.' };
+const SIZE_LABEL = { Petite: '1 pers.', Grande: '3 pers.', 'Méga': '3/4 pers.' };
 
 function normalize(str) {
   return str.normalize('NFD').replace(/[̀-ͯ]/g, '').trim().toLowerCase();
