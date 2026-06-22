@@ -251,7 +251,7 @@
     display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;
   }
   .tracker-title { font-weight: 900; font-size: 1rem; }
-  .tracker-eta { font-size: 0.8rem; font-weight: 700; color: var(--pizza); }
+  .tracker-eta { font-size: 0.8rem; font-weight: 700; color: var(--pizza); background: var(--pizza-light); padding: 4px 10px; border-radius: 99px; }
   .tracker-bar {
     height: 6px; background: #eee; border-radius: 999px; overflow: hidden; margin-bottom: 20px;
   }
@@ -433,9 +433,12 @@
         <span class="gps-dot" id="gpsDot"></span>
         <button class="gps-toggle-btn" id="gpsToggleBtn">📍 Activer le GPS</button>
       </div>
-      <div class="tracker-map-wrap" id="trackerMapWrap" style="display:none;">
-        <div class="tracker-map-title">📍 Position de Léo en direct</div>
-        <div id="trackerMap" style="height:250px;border-radius:14px;overflow:hidden;"></div>
+      <div class="tracker-map-wrap" id="trackerMapWrap" style="display:none;margin-top:14px;padding-top:12px;border-top:1px solid #eee;">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+          <span style="font-weight:800;font-size:0.92rem;">📍 Léo en direct</span>
+          <span id="mapEta" style="font-size:0.78rem;font-weight:700;color:var(--pizza);background:var(--pizza-light);padding:3px 10px;border-radius:99px;"></span>
+        </div>
+        <div id="trackerMap" style="height:280px;border-radius:16px;overflow:hidden;border:2px solid #eee;"></div>
       </div>
     </div>
 
@@ -674,12 +677,13 @@ document.getElementById('modalInput').addEventListener('keydown', e => {
 
 // ===== TRACKER LIVRAISON (piloté par le serveur, modifiable par Léo) =====
 const STEP_LABELS = ['Commande en cours', 'En cuisine', 'En livraison', 'Livrées !'];
+const STEP_ETA = ['⏳ En attente', '🔥 ~20 min', '🛵 ~10 min', '✅ Bon appétit !'];
 const STEP_PCT = [8, 33, 66, 100];
 
 function updateTracker(step) {
   if (typeof step !== 'number') step = 0;
   document.getElementById('trackerFill').style.width = STEP_PCT[step] + '%';
-  document.getElementById('trackerEta').textContent = STEP_LABELS[step];
+  document.getElementById('trackerEta').textContent = STEP_ETA[step] || '';
   for (let i = 0; i < 4; i++) {
     const el = document.getElementById('ts' + i);
     el.classList.remove('active', 'done');
@@ -855,20 +859,53 @@ function stopLeoTracking() {
   gpsActive = false;
 }
 
+const SKATEPARK = [45.56498, 5.92083]; // Skate Parc du Bout du Monde (à ajuster)
+let lastLeoPos = null;
+
 socket.on('leoLocation', ({ lat, lng }) => {
   const wrap = document.getElementById('trackerMapWrap');
   wrap.style.display = 'block';
+  lastLeoPos = [lat, lng];
+
+  const scooterIcon = L.divIcon({
+    className: '',
+    html: '<div style="font-size:32px;filter:drop-shadow(0 2px 6px rgba(0,0,0,.3));">🛵</div>',
+    iconSize: [36, 36],
+    iconAnchor: [18, 18],
+  });
+
+  const destIcon = L.divIcon({
+    className: '',
+    html: '<div style="font-size:28px;filter:drop-shadow(0 2px 4px rgba(0,0,0,.2));">📍</div>',
+    iconSize: [30, 30],
+    iconAnchor: [15, 28],
+  });
 
   if (!leoMap) {
-    leoMap = L.map('trackerMap').setView([lat, lng], 15);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap'
+    leoMap = L.map('trackerMap', { zoomControl: false }).setView([lat, lng], 15);
+    L.control.zoom({ position: 'bottomright' }).addTo(leoMap);
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+      attribution: '© CartoDB © OSM',
+      maxZoom: 19
     }).addTo(leoMap);
-    leoMarker = L.marker([lat, lng]).addTo(leoMap);
-    leoMarker.bindPopup('🛵 Léo est ici !').openPopup();
+    leoMarker = L.marker([lat, lng], { icon: scooterIcon }).addTo(leoMap);
+    L.marker(SKATEPARK, { icon: destIcon }).addTo(leoMap).bindPopup('🏁 Skate Parc');
+    leoMap.fitBounds([lastLeoPos, SKATEPARK], { padding: [40, 40] });
   } else {
     leoMarker.setLatLng([lat, lng]);
+    leoMarker.setIcon(scooterIcon);
     leoMap.panTo([lat, lng]);
+  }
+
+  // ETA basé sur la distance
+  const dist = leoMap.distance(lastLeoPos, SKATEPARK);
+  const etaEl = document.getElementById('mapEta');
+  if (etaEl) {
+    if (dist < 100) etaEl.textContent = '🏁 Arrivé !';
+    else {
+      const min = Math.max(1, Math.round(dist / 250));
+      etaEl.textContent = '~' + min + ' min';
+    }
   }
 });
 
