@@ -18,8 +18,10 @@ const DELEGATES = {
 };
 const ADMIN_KEY = 'leo';
 
-const SIZES = ['Petite', 'Moyenne', 'Grande'];
-const SIZE_MAX = { Petite: 2, Moyenne: 3, Grande: 4 };
+const SIZES = ['Petite', 'Grande', 'Méga'];
+const SIZE_MAX = { Petite: 1, Grande: 2, 'Méga': 4 };
+const SIZE_PRICE = { Petite: '9€', Grande: '13,50€', 'Méga': '18,50€' };
+const SIZE_LABEL = { Petite: '1 pers.', Grande: '2 pers.', 'Méga': '3/4 pers.' };
 
 function normalize(str) {
   return str.normalize('NFD').replace(/[̀-ͯ]/g, '').trim().toLowerCase();
@@ -109,6 +111,8 @@ function getState() {
   return {
     sizes: SIZES,
     sizeMax: SIZE_MAX,
+    sizePrice: SIZE_PRICE,
+    sizeLabel: SIZE_LABEL,
     pizzas,
     students: Array.from(registeredNames.values()),
     connected: activeCount(),

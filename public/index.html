@@ -291,6 +291,30 @@
   @keyframes cdPop { from { transform: scale(1.25); opacity: 0.4; } to { transform: scale(1); opacity: 1; } }
   .cd-txt { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.85; margin-top: 2px; }
 
+  /* ===== MENU CARTE ===== */
+  .menu-cats {
+    display: flex; gap: 6px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 12px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .menu-tab {
+    padding: 8px 16px; border-radius: 999px; border: 2px solid #e0e0e8;
+    background: white; font-weight: 700; font-size: 0.8rem; cursor: pointer;
+    white-space: nowrap; transition: all .2s; flex-shrink: 0;
+  }
+  .menu-tab.sel { border-color: var(--pizza); background: var(--pizza-light); color: var(--pizza); }
+  .menu-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .menu-item {
+    background: white; border: 2px solid #f0ebe5; border-radius: 14px;
+    padding: 12px; cursor: pointer; transition: all .15s;
+  }
+  .menu-item:hover { border-color: var(--pizza); transform: scale(1.02); }
+  .menu-item .mi-name { font-weight: 800; font-size: 0.88rem; margin-bottom: 2px; }
+  .menu-item .mi-desc { font-size: 0.68rem; color: #888; line-height: 1.4; }
+  .menu-item .mi-cat {
+    display: inline-block; font-size: 0.6rem; font-weight: 700; color: #fff;
+    background: var(--pizza); border-radius: 6px; padding: 2px 6px; margin-top: 4px;
+  }
+
   .hidden { display: none !important; }
 </style>
 </head>
@@ -314,7 +338,7 @@
   <p class="hero-sub">Crée un groupe pizza ou rejoins-en un. Choisis le nom, la taille, et invite tes potes.</p>
 
   <div class="countdown-card">
-    <div class="countdown-label">⏳ Rendez-vous lundi 23 à 18h · Bout du Monde</div>
+    <div class="countdown-label">⏳ Rendez-vous lundi 23 à 18h30 · Skate Parc</div>
     <div class="countdown-grid">
       <div class="cd-unit"><div class="cd-num" id="cdDays">0</div><div class="cd-txt">jours</div></div>
       <div class="cd-unit"><div class="cd-num" id="cdHours">00</div><div class="cd-txt">heures</div></div>
@@ -359,6 +383,18 @@
       </div>
     </div>
 
+    <div class="section-title">📋 La carte ShowPizz</div>
+    <div id="menuSection" style="margin-bottom:28px;">
+      <div class="menu-cats">
+        <button class="menu-tab sel" onclick="showCat(this,'all')">Toutes</button>
+        <button class="menu-tab" onclick="showCat(this,'retro')">Rétro</button>
+        <button class="menu-tab" onclick="showCat(this,'street')">Street</button>
+        <button class="menu-tab" onclick="showCat(this,'exquizz')">Exquizz</button>
+        <button class="menu-tab" onclick="showCat(this,'cheezy')">Cheezy</button>
+      </div>
+      <div class="menu-grid" id="menuGrid"></div>
+    </div>
+
     <div class="section-title">➕ Créer une pizza</div>
     <div class="create-card" id="createCard">
       <input id="pizzaNameInput" type="text" placeholder="Nom de la pizza (ex: Reine, 4 Fromages...)" maxlength="40" autocomplete="off"/>
@@ -397,7 +433,7 @@ let myName = null;
 let lastState = null;
 let isDelegate = false;
 let isAdmin = false;
-let selectedSize = 'Moyenne';
+// selectedSize initialisé dans buildSizeGrid
 
 // Background emojis
 (function() {
@@ -467,14 +503,17 @@ socket.on('state', (state) => {
 socket.on('groupError', ({ message }) => showToast(message));
 
 // Size selector
+let selectedSize = null;
 function buildSizeGrid(state) {
   const g = document.getElementById('sizeGrid');
   if (g.children.length) return;
+  if (!selectedSize) selectedSize = state.sizes[1] || state.sizes[0];
   (state.sizes || []).forEach(s => {
-    const max = state.sizeMax[s];
+    const price = state.sizePrice[s];
+    const label = state.sizeLabel[s];
     const d = document.createElement('div');
     d.className = 'size-opt' + (s === selectedSize ? ' sel' : '');
-    d.innerHTML = `${s}<small>${max} pers.</small>`;
+    d.innerHTML = `${s}<small>${price} · ${label}</small>`;
     d.onclick = () => {
       selectedSize = s;
       g.querySelectorAll('.size-opt').forEach(x => x.classList.remove('sel'));
@@ -528,7 +567,7 @@ function render(state) {
       <div class="pizza-deco">🍕</div>
       <div class="pizza-badge">🍕 ${esc(pizza.size)}</div>
       <div class="pizza-name">${esc(pizza.name)}</div>
-      <div class="pizza-size">${esc(pizza.size)} · ${pizza.members.length}/${max} personnes</div>
+      <div class="pizza-size">${esc(pizza.size)} · ${state.sizePrice[pizza.size]} · ${pizza.members.length}/${max} pers.</div>
       <ul class="members-list">${membersHtml}</ul>
       ${btnHtml}
       ${adminBtn}
@@ -604,7 +643,7 @@ function runIntro(state) {
     <div class="intro-scene" style="--sc:#f07830">
       <div class="is-emoji">🍕</div>
       <div class="is-label">Soirée Pizza</div>
-      <div class="is-sub">Lundi 23 · 18h · Bout du Monde</div>
+      <div class="is-sub">Lundi 23 · 18h30 · Skate Parc</div>
     </div>`;
 
   // Scenes: chaque pizza existante
@@ -642,9 +681,71 @@ function runIntro(state) {
 }
 setTimeout(() => { if (!introStarted) skipIntro(); }, 2500);
 
+// ===== MENU SHOWPIZZ =====
+const MENU = [
+  { cat:'retro', name:'Bergère', desc:'Crème, Lard Fumé, Tomates cerises, Chèvre, Mozzarella, Miel' },
+  { cat:'retro', name:'Calzone', desc:'Tomate, Jambon, Champignons, Œuf, Crème, Emmental' },
+  { cat:'retro', name:'Chèvre-Miel', desc:'Crème, Poulet, Chèvre, Mozzarella, Miel' },
+  { cat:'retro', name:'Flammekueche', desc:'Crème, Champignons, Oignons, Lardons, Mozzarella' },
+  { cat:'retro', name:'Margherita', desc:'Tomate, Olives, Mozzarella fraîche, Emmental, Basilic frais' },
+  { cat:'retro', name:'Napoli', desc:'Tomate, Champignons, Jambon, Œuf, Mozzarella' },
+  { cat:'retro', name:'Reine', desc:'Tomate, Jambon, Mozzarella' },
+  { cat:'retro', name:'Végétarienne', desc:'Tomate, Champignons, Poivrons, Oignons, Tomates cerises, Olives, Basilic' },
+  { cat:'street', name:"Bib'z", desc:'Tomate, Bœuf haché, Lard fumé, Cheddar, Mozzarella, Oignons frits, Sauce BBQ' },
+  { cat:'street', name:'Burger', desc:'Crème, Oignons, Bœuf haché, Cheddar, Mozzarella, Sauce Burger' },
+  { cat:'street', name:"Chaud'rizo", desc:'Tomate, Chorizo, Origan, Parmesan, Mozzarella fraîche' },
+  { cat:'street', name:'Crispy Chicken', desc:'Tomate, Pommes de terre, Poulet épicé, Chorizo, Oignons frits, Raclette, Sauce BBQ' },
+  { cat:'street', name:'Double Cheese', desc:'Tomate, Bœuf haché, Cheddar, Emmental, Crème, Sauce Burger' },
+  { cat:'street', name:'Fermière', desc:'Crème, Champignons, Œuf, Poulet, Mozzarella' },
+  { cat:'street', name:'Kanibal', desc:'Crème, Merguez, Poulet, Bœuf haché, Oignons, Olives, Cheddar, Sauce BBQ' },
+  { cat:'street', name:'La Mayennaise', desc:'Crème, Poulet, Oignons, Œuf, Mozzarella, Cheddar, Sauce Samouraï' },
+  { cat:'street', name:'Show Pizz', desc:'Tomate, Oignons, Champignons, Jambon, Chorizo, Lardons, Œuf, Crème, Mozzarella' },
+  { cat:'exquizz', name:'Baltique', desc:'Tomate, Saumon, Thon, Crème, Mozzarella' },
+  { cat:'exquizz', name:'Java', desc:'Crème, Jambon, Bacon, Lardons, Pommes de terre, Raclette, Reblochon, Mozzarella' },
+  { cat:'exquizz', name:'La Gervaise', desc:'Tomate, Tomates cerises, Saumon, Chèvre, Origan, Mozzarella, Basilic' },
+  { cat:'exquizz', name:'Norvégienne', desc:'Crème, Pommes de terre, Saumon, Raclette, Mozzarella' },
+  { cat:'exquizz', name:'La Pesto', desc:'Crème, Poulet, Tomates cerises, Sauce Pesto, Parmesan, Mozzarella, Basilic' },
+  { cat:'exquizz', name:"L'Italienne", desc:"Tomate, Tomates cerises, Sauce Pesto, Huile d'olive, Mozzarella fraîche, Parmesan, Basilic" },
+  { cat:'exquizz', name:'Tonno Pesto', desc:'Tomate, Poivrons, Olives, Thon, Parmesan, Mozzarella, Sauce Pesto' },
+  { cat:'cheezy', name:'6 Fromages', desc:'Crème, Camembert, Reblochon, Bleu, Chèvre, Parmesan, Mozzarella' },
+  { cat:'cheezy', name:'Buffalo', desc:'Tomate, Bœuf haché, Chorizo, Poivrons, Oignons, Mozzarella' },
+  { cat:'cheezy', name:'Forestière', desc:'Crème, Pommes de terre, Champignons, Lard fumé, Camembert, Poivre noir, Mozzarella' },
+  { cat:'cheezy', name:'Tartiflette', desc:'Crème, Pommes de terre, Lardons, Reblochon, Mozzarella' },
+  { cat:'cheezy', name:'Montagnarde', desc:'Crème, Champignons, Oignons, Jambon, Chorizo, Raclette, Mozzarella' },
+  { cat:'cheezy', name:'Raclette', desc:'Tomate, Pommes de terre, Jambon, Bacon, Raclette, Mozzarella' },
+  { cat:'cheezy', name:'Touareg', desc:'Crème, Merguez, Tomates cerises, Olives, Reblochon, Mozzarella' },
+];
+const CAT_LABELS = { retro:'Rétro', street:'Street', exquizz:'Exquizz', cheezy:'Cheezy' };
+const CAT_COLORS = { retro:'#c62828', street:'#e65100', exquizz:'#2e7d32', cheezy:'#f9a825' };
+let currentCat = 'all';
+
+function buildMenu() {
+  const grid = document.getElementById('menuGrid');
+  grid.innerHTML = '';
+  const items = currentCat === 'all' ? MENU : MENU.filter(m => m.cat === currentCat);
+  items.forEach(m => {
+    const d = document.createElement('div');
+    d.className = 'menu-item';
+    d.innerHTML = `<div class="mi-name">${esc(m.name)}</div><div class="mi-desc">${esc(m.desc)}</div><span class="mi-cat" style="background:${CAT_COLORS[m.cat]}">${CAT_LABELS[m.cat]}</span>`;
+    d.onclick = () => {
+      document.getElementById('pizzaNameInput').value = m.name;
+      document.getElementById('pizzaNameInput').scrollIntoView({ behavior:'smooth', block:'center' });
+      showToast(`"${m.name}" sélectionnée — choisis la taille et crée !`);
+    };
+    grid.appendChild(d);
+  });
+}
+function showCat(btn, cat) {
+  currentCat = cat;
+  document.querySelectorAll('.menu-tab').forEach(b => b.classList.remove('sel'));
+  btn.classList.add('sel');
+  buildMenu();
+}
+buildMenu();
+
 // Countdown
 (function() {
-  const target = new Date(2026, 5, 23, 18, 0, 0);
+  const target = new Date(2026, 5, 23, 18, 30, 0);
   const pad = n => String(n).padStart(2, '0');
   function tick() {
     const diff = Math.max(0, target - new Date());
