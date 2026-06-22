@@ -251,7 +251,6 @@
     display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;
   }
   .tracker-title { font-weight: 900; font-size: 1rem; }
-  .tracker-eta { font-size: 0.8rem; font-weight: 700; color: var(--pizza); background: var(--pizza-light); padding: 4px 10px; border-radius: 99px; }
   .tracker-bar {
     height: 6px; background: #eee; border-radius: 999px; overflow: hidden; margin-bottom: 20px;
   }
@@ -404,7 +403,6 @@
     <div class="tracker-card" id="trackerCard">
       <div class="tracker-header">
         <span class="tracker-title">🛵 Suivi de commande</span>
-        <span class="tracker-eta" id="trackerEta"></span>
       </div>
       <div class="tracker-bar"><div class="tracker-fill" id="trackerFill"></div></div>
       <div class="tracker-steps">
@@ -436,7 +434,6 @@
       <div class="tracker-map-wrap" id="trackerMapWrap" style="display:none;margin-top:14px;padding-top:12px;border-top:1px solid #eee;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
           <span style="font-weight:800;font-size:0.92rem;">📍 Léo en direct</span>
-          <span id="mapEta" style="font-size:0.78rem;font-weight:700;color:var(--pizza);background:var(--pizza-light);padding:3px 10px;border-radius:99px;"></span>
         </div>
         <div id="trackerMap" style="height:280px;border-radius:16px;overflow:hidden;border:2px solid #eee;"></div>
       </div>
@@ -677,13 +674,11 @@ document.getElementById('modalInput').addEventListener('keydown', e => {
 
 // ===== TRACKER LIVRAISON (piloté par le serveur, modifiable par Léo) =====
 const STEP_LABELS = ['Commande en cours', 'En cuisine', 'En livraison', 'Livrées !'];
-const STEP_ETA = ['⏳ En attente', '🔥 ~20 min', '🛵 ~10 min', '✅ Bon appétit !'];
 const STEP_PCT = [8, 33, 66, 100];
 
 function updateTracker(step) {
   if (typeof step !== 'number') step = 0;
   document.getElementById('trackerFill').style.width = STEP_PCT[step] + '%';
-  document.getElementById('trackerEta').textContent = STEP_ETA[step] || '';
   for (let i = 0; i < 4; i++) {
     const el = document.getElementById('ts' + i);
     el.classList.remove('active', 'done');
@@ -730,8 +725,6 @@ function updateTracker(step) {
       const destIcon = L.divIcon({ className: '', html: '<div style="font-size:28px;filter:drop-shadow(0 2px 4px rgba(0,0,0,.2));">📍</div>', iconSize: [30, 30], iconAnchor: [15, 28] });
       L.marker(SKATEPARK, { icon: destIcon }).addTo(leoMap).bindPopup('🏁 Skate Parc');
     }
-    const etaEl = document.getElementById('mapEta');
-    if (etaEl && !lastLeoPos) etaEl.textContent = '📡 En attente du GPS…';
   } else {
     document.getElementById('trackerMapWrap').style.display = 'none';
   }
@@ -894,16 +887,6 @@ socket.on('leoLocation', ({ lat, lng }) => {
     leoMap.panTo([lat, lng]);
   }
 
-  // ETA basé sur la distance
-  const dist = leoMap.distance(lastLeoPos, SKATEPARK);
-  const etaEl = document.getElementById('mapEta');
-  if (etaEl) {
-    if (dist < 150) etaEl.textContent = '🏁 Arrivé !';
-    else {
-      const min = Math.max(1, Math.round((dist / 1000) * 2));
-      etaEl.textContent = '~' + min + ' min';
-    }
-  }
 });
 
 // ===== MENU SHOWPIZZ =====
