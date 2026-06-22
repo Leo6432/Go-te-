@@ -814,8 +814,23 @@ function updateGpsStatus() {
 function startLeoTracking() {
   if (!navigator.geolocation) { showToast('GPS non disponible sur cet appareil'); return; }
   if (geoWatchId !== null) return;
-
-  // D'abord demander la permission via getCurrentPosition
+  if (location.protocol !== 'https:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
+    showToast('⚠️ Le GPS nécessite HTTPS ! Utilise le lien Render.');
+    return;
+  }
+  if (navigator.permissions) {
+    navigator.permissions.query({ name: 'geolocation' }).then(function(result) {
+      if (result.state === 'denied') {
+        showToast('📍 GPS bloqué — clique sur le cadenas 🔒 à côté de l\'URL → Autorisations → Position → Autoriser, puis recharge');
+        return;
+      }
+      doStartGeo();
+    }).catch(function() { doStartGeo(); });
+  } else {
+    doStartGeo();
+  }
+}
+function doStartGeo() {
   navigator.geolocation.getCurrentPosition(
     (pos) => {
       // Permission ok, on lance le watch
