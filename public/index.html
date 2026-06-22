@@ -812,33 +812,19 @@ function updateGpsStatus() {
 }
 
 function startLeoTracking() {
-  if (!navigator.geolocation) { showToast('GPS non disponible sur cet appareil'); return; }
+  if (!navigator.geolocation) { showToast('❌ GPS non supporté sur ce navigateur'); return; }
   if (geoWatchId !== null) return;
   if (location.protocol !== 'https:' && location.hostname !== 'localhost' && location.hostname !== '127.0.0.1') {
     showToast('⚠️ Le GPS nécessite HTTPS ! Utilise le lien Render.');
     return;
   }
-  if (navigator.permissions) {
-    navigator.permissions.query({ name: 'geolocation' }).then(function(result) {
-      if (result.state === 'denied') {
-        showToast('📍 GPS bloqué — clique sur le cadenas 🔒 à côté de l\'URL → Autorisations → Position → Autoriser, puis recharge');
-        return;
-      }
-      doStartGeo();
-    }).catch(function() { doStartGeo(); });
-  } else {
-    doStartGeo();
-  }
-}
-function doStartGeo() {
+  showToast('📍 Demande de position en cours…');
   navigator.geolocation.getCurrentPosition(
     (pos) => {
-      // Permission ok, on lance le watch
       socket.emit('leoLocation', { lat: pos.coords.latitude, lng: pos.coords.longitude });
       gpsActive = true;
       updateGpsStatus();
-      showToast('📍 Partage GPS activé !');
-
+      showToast('📍 GPS activé !');
       geoWatchId = navigator.geolocation.watchPosition(
         (p) => { socket.emit('leoLocation', { lat: p.coords.latitude, lng: p.coords.longitude }); },
         (err) => {
@@ -846,17 +832,18 @@ function doStartGeo() {
           gpsActive = false;
           updateGpsStatus();
         },
-        { enableHighAccuracy: true, maximumAge: 3000, timeout: 10000 }
+        { enableHighAccuracy: true, maximumAge: 5000, timeout: 30000 }
       );
     },
     (err) => {
-      if (err.code === 1) showToast('📍 Tu dois autoriser le GPS dans ton navigateur !');
-      else if (err.code === 2) showToast('📍 Position indisponible');
+      if (err.code === 1) showToast('📍 Position refusée — active le GPS du téléphone puis autorise dans Chrome');
+      else if (err.code === 2) showToast('📍 Position indisponible — vérifie que le GPS du téléphone est activé');
+      else if (err.code === 3) showToast('📍 Timeout — le GPS met trop de temps, réessaie dehors');
       else showToast('📍 Erreur GPS : ' + err.message);
       gpsActive = false;
       updateGpsStatus();
     },
-    { enableHighAccuracy: true, timeout: 10000 }
+    { enableHighAccuracy: false, timeout: 30000, maximumAge: 60000 }
   );
 }
 
