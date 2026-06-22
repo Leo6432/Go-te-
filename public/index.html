@@ -717,8 +717,22 @@ function updateTracker(step) {
     showGpsToggle(false);
   }
 
-  // Cacher la carte si on n'est plus en livraison
-  if (step !== 2) {
+  // Afficher/cacher la carte selon l'étape
+  if (step === 2) {
+    const wrap = document.getElementById('trackerMapWrap');
+    wrap.style.display = 'block';
+    if (!leoMap) {
+      leoMap = L.map('trackerMap', { zoomControl: false }).setView(SKATEPARK, 14);
+      L.control.zoom({ position: 'bottomright' }).addTo(leoMap);
+      L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+        attribution: '© CartoDB © OSM', maxZoom: 19
+      }).addTo(leoMap);
+      const destIcon = L.divIcon({ className: '', html: '<div style="font-size:28px;filter:drop-shadow(0 2px 4px rgba(0,0,0,.2));">📍</div>', iconSize: [30, 30], iconAnchor: [15, 28] });
+      L.marker(SKATEPARK, { icon: destIcon }).addTo(leoMap).bindPopup('🏁 Skate Parc');
+    }
+    const etaEl = document.getElementById('mapEta');
+    if (etaEl && !lastLeoPos) etaEl.textContent = '📡 En attente du GPS…';
+  } else {
     document.getElementById('trackerMapWrap').style.display = 'none';
   }
 }
@@ -862,38 +876,21 @@ function stopLeoTracking() {
 const SKATEPARK = [47.82560366643711, -0.7202089341414206]; // Skate Parc, Château-Gontier
 let lastLeoPos = null;
 
+const scooterIcon = L.divIcon({
+  className: '',
+  html: '<div style="font-size:32px;filter:drop-shadow(0 2px 6px rgba(0,0,0,.3));">🛵</div>',
+  iconSize: [36, 36],
+  iconAnchor: [18, 18],
+});
+
 socket.on('leoLocation', ({ lat, lng }) => {
-  const wrap = document.getElementById('trackerMapWrap');
-  wrap.style.display = 'block';
   lastLeoPos = [lat, lng];
 
-  const scooterIcon = L.divIcon({
-    className: '',
-    html: '<div style="font-size:32px;filter:drop-shadow(0 2px 6px rgba(0,0,0,.3));">🛵</div>',
-    iconSize: [36, 36],
-    iconAnchor: [18, 18],
-  });
-
-  const destIcon = L.divIcon({
-    className: '',
-    html: '<div style="font-size:28px;filter:drop-shadow(0 2px 4px rgba(0,0,0,.2));">📍</div>',
-    iconSize: [30, 30],
-    iconAnchor: [15, 28],
-  });
-
-  if (!leoMap) {
-    leoMap = L.map('trackerMap', { zoomControl: false }).setView([lat, lng], 15);
-    L.control.zoom({ position: 'bottomright' }).addTo(leoMap);
-    L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-      attribution: '© CartoDB © OSM',
-      maxZoom: 19
-    }).addTo(leoMap);
+  if (leoMap && !leoMarker) {
     leoMarker = L.marker([lat, lng], { icon: scooterIcon }).addTo(leoMap);
-    L.marker(SKATEPARK, { icon: destIcon }).addTo(leoMap).bindPopup('🏁 Skate Parc');
     leoMap.fitBounds([lastLeoPos, SKATEPARK], { padding: [40, 40] });
-  } else {
+  } else if (leoMarker) {
     leoMarker.setLatLng([lat, lng]);
-    leoMarker.setIcon(scooterIcon);
     leoMap.panTo([lat, lng]);
   }
 
