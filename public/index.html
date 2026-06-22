@@ -3,23 +3,20 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Goûter de fin d'année 🎉</title>
+<title>Soirée Pizza 🍕</title>
 <style>
   :root {
     --bg: #f5f5f7;
-    --card: #ffffff;
     --dark: #1a1a2e;
     --blue: #5b8dee;
-    --orange: #f07830;
-    --orange-light: #fff3eb;
-    --orange-border: #f8c89a;
+    --pizza: #f07830;
+    --pizza-light: #fff3eb;
+    --pizza-border: #f8c89a;
     --gray: #8e8e93;
     --radius: 20px;
     --shadow: 0 4px 20px rgba(0,0,0,0.08);
   }
-
   * { box-sizing: border-box; margin: 0; padding: 0; }
-
   body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     background: var(--bg);
@@ -29,28 +26,13 @@
   }
 
   /* ===== FOND ANIMÉ ===== */
-  .bg-canvas {
-    position: fixed;
-    inset: 0;
-    pointer-events: none;
-    z-index: 0;
-    overflow: hidden;
-  }
-
-  .bg-blob {
-    position: absolute;
-    border-radius: 50%;
-    filter: blur(60px);
-    opacity: 0.35;
-    animation: blobFloat linear infinite;
-  }
-
+  .bg-canvas { position: fixed; inset: 0; pointer-events: none; z-index: 0; overflow: hidden; }
+  .bg-blob { position: absolute; border-radius: 50%; filter: blur(60px); opacity: 0.35; animation: blobFloat linear infinite; }
   .blob1 { width: 420px; height: 420px; background: #ffe0b2; top: -100px; left: -120px; animation-duration: 18s; }
-  .blob2 { width: 300px; height: 300px; background: #c8e6ff; top: 25%; right: -80px; animation-duration: 22s; animation-delay: -6s; }
+  .blob2 { width: 300px; height: 300px; background: #ffd6c8; top: 25%; right: -80px; animation-duration: 22s; animation-delay: -6s; }
   .blob3 { width: 250px; height: 250px; background: #e8d5ff; bottom: 5%; left: 25%; animation-duration: 15s; animation-delay: -10s; }
-  .blob4 { width: 200px; height: 200px; background: #d4f5d4; top: 55%; right: 15%; animation-duration: 20s; animation-delay: -3s; }
-  .blob5 { width: 220px; height: 220px; background: #ffd6e7; bottom: 30%; left: -60px; animation-duration: 24s; animation-delay: -12s; }
-
+  .blob4 { width: 200px; height: 200px; background: #ffd4d4; top: 55%; right: 15%; animation-duration: 20s; animation-delay: -3s; }
+  .blob5 { width: 220px; height: 220px; background: #ffe6b8; bottom: 30%; left: -60px; animation-duration: 24s; animation-delay: -12s; }
   @keyframes blobFloat {
     0%   { transform: translate(0, 0) scale(1); }
     25%  { transform: translate(30px, -20px) scale(1.04); }
@@ -58,628 +40,278 @@
     75%  { transform: translate(-20px, 10px) scale(1.02); }
     100% { transform: translate(0, 0) scale(1); }
   }
-
-  .bg-food {
-    position: absolute;
-    opacity: 0.14;
-    animation: foodFloat linear infinite;
-    user-select: none;
-  }
-
+  .bg-food { position: absolute; opacity: 0.14; animation: foodFloat linear infinite, foodIn 1.2s ease backwards; user-select: none; }
   @keyframes foodFloat {
-    0%   { transform: translateY(0px) rotate(0deg); }
+    0%   { transform: translateY(0) rotate(0deg); }
     33%  { transform: translateY(-22px) rotate(10deg); }
     66%  { transform: translateY(14px) rotate(-7deg); }
-    100% { transform: translateY(0px) rotate(0deg); }
+    100% { transform: translateY(0) rotate(0deg); }
   }
+  @keyframes foodIn { from { opacity:0; transform:scale(0); } to { opacity:0.14; transform:scale(1); } }
 
   /* ===== LAYOUT ===== */
   #landing, #dashboard { position: relative; z-index: 1; }
-
   #landing {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 48px 24px 60px;
+    min-height: 100vh; display: flex; flex-direction: column;
+    align-items: center; padding: 48px 24px 60px;
   }
-
   .event-badge {
-    background: #fffbe6;
-    border: 1.5px solid #ffd566;
-    border-radius: 999px;
-    padding: 8px 18px;
-    font-size: 14px;
-    font-weight: 600;
-    color: #7a5c00;
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    margin-bottom: 36px;
+    background: #fff3eb; border: 1.5px solid var(--pizza-border); border-radius: 999px;
+    padding: 8px 18px; font-size: 14px; font-weight: 600; color: #7a3a00;
+    display: inline-flex; align-items: center; gap: 8px; margin-bottom: 36px;
   }
-
-  .hero-title {
-    font-size: 2.6rem;
-    font-weight: 900;
-    text-align: center;
-    line-height: 1.15;
-    margin-bottom: 16px;
-  }
-  .hero-title span { color: var(--blue); }
-
-  .hero-sub {
-    font-size: 1.05rem;
-    color: #555;
-    text-align: center;
-    max-width: 300px;
-    line-height: 1.65;
-    margin-bottom: 40px;
-  }
-
+  .hero-title { font-size: 2.6rem; font-weight: 900; text-align: center; line-height: 1.15; margin-bottom: 16px; }
+  .hero-title span { color: var(--pizza); }
+  .hero-sub { font-size: 1.05rem; color: #555; text-align: center; max-width: 320px; line-height: 1.65; margin-bottom: 40px; }
   .name-card {
-    background: white;
-    border-radius: var(--radius);
-    box-shadow: var(--shadow);
-    padding: 28px 24px;
-    width: 100%;
-    max-width: 380px;
+    background: white; border-radius: var(--radius); box-shadow: var(--shadow);
+    padding: 28px 24px; width: 100%; max-width: 380px;
   }
-  .name-card label {
-    font-size: 0.85rem;
-    font-weight: 700;
-    display: block;
-    margin-bottom: 10px;
-  }
+  .name-card label { font-size: 0.85rem; font-weight: 700; display: block; margin-bottom: 10px; }
   .name-card input {
-    width: 100%;
-    padding: 16px 18px;
-    border: 2px solid #e0e8ff;
-    border-radius: 14px;
-    font-size: 1rem;
-    outline: none;
-    transition: border-color .2s;
-    color: var(--dark);
-    background: #fafbff;
+    width: 100%; padding: 16px 18px; border: 2px solid #ffe0c8; border-radius: 14px;
+    font-size: 1rem; outline: none; transition: border-color .2s; color: var(--dark); background: #fffaf6;
   }
-  .name-card input:focus { border-color: var(--blue); background: white; }
+  .name-card input:focus { border-color: var(--pizza); background: white; }
   .name-card input::placeholder { color: #bbb; }
-
   .btn-primary {
-    width: 100%;
-    padding: 18px;
-    background: var(--dark);
-    color: white;
-    border: none;
-    border-radius: 50px;
-    font-size: 1.05rem;
-    font-weight: 700;
-    cursor: pointer;
-    margin-top: 14px;
-    transition: transform .15s, opacity .15s;
+    width: 100%; padding: 18px; background: var(--dark); color: white;
+    border: none; border-radius: 50px; font-size: 1.05rem; font-weight: 700;
+    cursor: pointer; margin-top: 14px; transition: transform .15s, opacity .15s;
   }
   .btn-primary:hover { opacity: 0.88; }
   .btn-primary:active { transform: scale(0.97); }
 
   /* ===== HEADER ===== */
   header {
-    position: sticky;
-    top: 0;
-    z-index: 100;
-    background: rgba(245,245,247,0.88);
-    backdrop-filter: blur(14px);
-    padding: 12px 20px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(245,245,247,0.88); backdrop-filter: blur(14px);
+    padding: 12px 20px; display: flex; align-items: center; gap: 10px;
     border-bottom: 1px solid rgba(0,0,0,0.06);
   }
   .header-logo { font-size: 1.5rem; }
   .event-badge-sm {
-    background: #fffbe6;
-    border: 1.5px solid #ffd566;
-    border-radius: 999px;
-    padding: 6px 14px;
-    font-size: 12px;
-    font-weight: 600;
-    color: #7a5c00;
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
+    background: #fff3eb; border: 1.5px solid var(--pizza-border); border-radius: 999px;
+    padding: 6px 14px; font-size: 12px; font-weight: 600; color: #7a3a00;
+    display: inline-flex; align-items: center; gap: 6px;
   }
   .header-name {
-    background: #fff9e6;
-    border: 2px solid #ffd566;
-    border-radius: 999px;
-    padding: 7px 16px;
-    font-size: 0.9rem;
-    font-weight: 700;
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    margin-left: auto;
-    white-space: nowrap;
+    background: #fff3eb; border: 2px solid var(--pizza-border); border-radius: 999px;
+    padding: 7px 16px; font-size: 0.9rem; font-weight: 700;
+    display: flex; align-items: center; gap: 6px; margin-left: auto; white-space: nowrap;
   }
   .icon-btn {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    border: 2px solid #e5e5ea;
-    background: white;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    font-size: 1rem;
-    flex-shrink: 0;
+    width: 40px; height: 40px; border-radius: 50%; border: 2px solid #e5e5ea;
+    background: white; display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 1rem; flex-shrink: 0;
   }
   .icon-btn:hover { background: #f0f0f5; }
 
   /* ===== DASHBOARD ===== */
   #dashboard { display: none; }
-  .dash-content {
-    padding: 24px 20px 100px;
-    max-width: 480px;
-    margin: 0 auto;
-  }
-  .greeting {
-    font-size: 2rem;
-    font-weight: 900;
-    margin-bottom: 6px;
-  }
-  .greeting span { color: var(--blue); }
-  .greeting-sub {
-    color: #666;
-    font-size: 1rem;
-    margin-bottom: 28px;
-    line-height: 1.5;
-  }
+  .dash-content { padding: 24px 20px 100px; max-width: 480px; margin: 0 auto; }
+  .greeting { font-size: 2rem; font-weight: 900; margin-bottom: 6px; }
+  .greeting-sub { color: #666; font-size: 1rem; margin-bottom: 28px; line-height: 1.5; }
+  .section-title { font-size: 1.1rem; font-weight: 900; margin-bottom: 16px; display: flex; align-items: center; gap: 8px; }
 
-  /* ===== STATS ===== */
-  .stats-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 12px;
-    margin-bottom: 32px;
-  }
-  .stat-card {
-    background: white;
-    border-radius: 16px;
-    padding: 16px 14px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
+  /* ===== PIZZA CARDS ===== */
+  .pizza-card {
+    border-radius: var(--radius); padding: 22px; margin-bottom: 16px;
+    position: relative; overflow: hidden;
+    border: 2px solid var(--pizza-border); background: var(--pizza-light);
     box-shadow: var(--shadow);
   }
-  .stat-icon { font-size: 1.8rem; flex-shrink: 0; }
-  .stat-num { font-size: 1.7rem; font-weight: 900; line-height: 1; }
-  .stat-label {
-    font-size: 0.62rem;
-    font-weight: 700;
-    color: var(--gray);
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-    margin-top: 2px;
+  .pizza-card.mine { border-color: var(--blue); background: #f0f4ff; }
+  .pizza-deco { position: absolute; top: -6px; right: -6px; font-size: 3.8rem; opacity: 0.15; pointer-events: none; }
+  .pizza-badge {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: #fff; border: 1.5px solid #e0d5c8; border-radius: 999px;
+    padding: 5px 12px; font-size: 0.75rem; font-weight: 800; color: #5a3a1a;
+    letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 12px;
   }
-
-  .section-title {
-    font-size: 1.1rem;
-    font-weight: 900;
-    margin-bottom: 16px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  /* ===== GROUP CARDS ===== */
-  .group-card {
-    border-radius: var(--radius);
-    padding: 22px;
-    margin-bottom: 16px;
-    position: relative;
-    overflow: hidden;
-    border: 2px solid var(--orange-border);
-    background: var(--orange-light);
-    box-shadow: var(--shadow);
-    transition: opacity .2s;
-  }
-  .group-card.mine {
-    border-color: var(--blue);
-    background: #f0f4ff;
-  }
-  .theme-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 6px;
-    background: #fff;
-    border: 1.5px solid #e0d5c8;
-    border-radius: 999px;
-    padding: 5px 12px;
-    font-size: 0.75rem;
-    font-weight: 800;
-    color: #5a3a1a;
-    letter-spacing: 0.5px;
-    text-transform: uppercase;
-    margin-bottom: 12px;
-  }
-  .group-deco {
-    position: absolute;
-    top: -6px;
-    right: -6px;
-    font-size: 3.8rem;
-    opacity: 0.15;
-    pointer-events: none;
-  }
-  .group-name {
-    font-size: 1.45rem;
-    font-weight: 900;
-    margin-bottom: 14px;
-    color: var(--dark);
-    padding-right: 40px;
-  }
-  .count-pill {
-    font-size: 0.85rem;
-    font-weight: 700;
-    color: #888;
-    margin-bottom: 12px;
-  }
+  .pizza-name { font-size: 1.45rem; font-weight: 900; margin-bottom: 4px; padding-right: 40px; }
+  .pizza-size { font-size: 0.85rem; font-weight: 700; color: #888; margin-bottom: 12px; }
   .members-list { list-style: none; margin-bottom: 18px; }
-  .member-row {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 5px 0;
-    font-size: 1rem;
-    font-weight: 700;
-    color: var(--dark);
-  }
-  .member-row.empty {
-    font-style: italic;
-    color: #c0c0c0;
-    font-weight: 400;
-    font-size: 0.95rem;
-  }
+  .member-row { display: flex; align-items: center; gap: 8px; padding: 5px 0; font-size: 1rem; font-weight: 700; }
+  .member-row.empty { font-style: italic; color: #c0c0c0; font-weight: 400; font-size: 0.95rem; }
   .btn-join {
-    width: 100%;
-    padding: 16px;
-    background: var(--orange);
-    color: white;
-    border: none;
-    border-radius: 50px;
-    font-size: 1rem;
-    font-weight: 700;
-    cursor: pointer;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
+    width: 100%; padding: 16px; background: var(--pizza); color: white;
+    border: none; border-radius: 50px; font-size: 1rem; font-weight: 700;
+    cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px;
     transition: transform .15s, opacity .15s;
   }
   .btn-join:hover { opacity: 0.9; }
   .btn-join:active { transform: scale(0.97); }
   .btn-join.leave { background: #e5e5ea; color: #555; }
 
-  /* carte "Autre" individuelle */
-  .autre-entry {
-    background: white;
-    border: 2px solid #e0e0e8;
-    border-radius: 16px;
-    padding: 14px 18px;
-    margin-bottom: 10px;
-    display: flex;
-    align-items: center;
-    gap: 12px;
+  /* ===== CREATE PIZZA CARD ===== */
+  .create-card {
+    border-radius: var(--radius); padding: 22px; margin-bottom: 16px;
+    border: 2px dashed #ccc; background: white; box-shadow: var(--shadow);
   }
-  .autre-entry.mine { border-color: var(--blue); background: #f0f4ff; }
-  .autre-entry .ae-emoji { font-size: 1.4rem; }
-  .autre-entry .ae-text { flex: 1; }
-  .autre-entry .ae-item { font-weight: 800; font-size: 1.05rem; }
-  .autre-entry .ae-who { font-size: 0.82rem; color: #888; font-weight: 600; }
+  .create-card input, .create-card select {
+    width: 100%; padding: 14px 16px; border: 2px solid #e0e8ff; border-radius: 14px;
+    font-size: 1rem; outline: none; margin-bottom: 10px; color: var(--dark); background: #fafbff;
+  }
+  .create-card input:focus, .create-card select:focus { border-color: var(--pizza); background: white; }
+  .size-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px; }
+  .size-opt {
+    padding: 12px 8px; border-radius: 14px; border: 2px solid #e0e0e8;
+    background: white; text-align: center; cursor: pointer; transition: all .2s;
+    font-weight: 700; font-size: 0.85rem;
+  }
+  .size-opt:hover { border-color: var(--pizza); }
+  .size-opt.sel { border-color: var(--pizza); background: var(--pizza-light); color: var(--pizza); }
+  .size-opt small { display: block; font-weight: 600; color: #888; font-size: 0.7rem; margin-top: 2px; }
 
   /* ===== MODAL ===== */
   .modal-overlay {
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.45);
-    z-index: 200;
-    display: flex;
-    align-items: flex-end;
-    justify-content: center;
-    padding: 0 0 20px;
+    position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 200;
+    display: flex; align-items: flex-end; justify-content: center; padding: 0 0 20px;
   }
   .modal-sheet {
-    background: white;
-    border-radius: 24px 24px 16px 16px;
-    padding: 28px 24px 32px;
-    width: 100%;
-    max-width: 480px;
-    animation: slideUp .25s ease;
+    background: white; border-radius: 24px 24px 16px 16px; padding: 28px 24px 32px;
+    width: 100%; max-width: 480px; animation: slideUp .25s ease;
   }
-  @keyframes slideUp {
-    from { transform: translateY(80px); opacity: 0; }
-    to   { transform: translateY(0);    opacity: 1; }
-  }
+  @keyframes slideUp { from { transform: translateY(80px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
   .modal-title { font-size: 1.2rem; font-weight: 900; margin-bottom: 6px; text-align: center; }
   .modal-sub { text-align: center; color: #777; font-size: 0.88rem; margin-bottom: 18px; }
   .modal-input {
-    width: 100%;
-    padding: 16px 18px;
-    border: 2px solid #e0e8ff;
-    border-radius: 14px;
-    font-size: 1rem;
-    outline: none;
-    margin-bottom: 14px;
-    color: var(--dark);
-    transition: border-color .2s;
-    background: #fafbff;
+    width: 100%; padding: 16px 18px; border: 2px solid #e0e8ff; border-radius: 14px;
+    font-size: 1rem; outline: none; margin-bottom: 14px; color: var(--dark); background: #fafbff;
   }
   .modal-input:focus { border-color: var(--blue); background: white; }
   .modal-btns { display: flex; gap: 10px; }
-  .btn-cancel {
-    flex: 1; padding: 16px; background: #f0f0f5; color: #555;
-    border: none; border-radius: 50px; font-size: 1rem; font-weight: 700; cursor: pointer;
-  }
-  .btn-confirm {
-    flex: 2; padding: 16px; background: var(--orange); color: white;
-    border: none; border-radius: 50px; font-size: 1rem; font-weight: 700; cursor: pointer;
-    transition: opacity .15s;
-  }
-  .btn-confirm:hover { opacity: 0.9; }
+  .btn-cancel { flex: 1; padding: 16px; background: #f0f0f5; color: #555; border: none; border-radius: 50px; font-size: 1rem; font-weight: 700; cursor: pointer; }
+  .btn-confirm { flex: 2; padding: 16px; background: var(--pizza); color: white; border: none; border-radius: 50px; font-size: 1rem; font-weight: 700; cursor: pointer; }
 
   /* ===== STUDENTS ===== */
   .students-grid { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 32px; }
   .student-chip {
-    background: white;
-    border: 2px solid #e5e5ea;
-    border-radius: 999px;
-    padding: 8px 16px;
-    font-size: 0.88rem;
-    font-weight: 600;
-    color: var(--dark);
+    background: white; border: 2px solid #e5e5ea; border-radius: 999px;
+    padding: 8px 16px; font-size: 0.88rem; font-weight: 600; color: var(--dark);
     box-shadow: 0 2px 8px rgba(0,0,0,0.05);
   }
-  .student-chip.me { border-color: var(--blue); color: var(--blue); background: #f0f4ff; }
+  .student-chip.me { border-color: var(--pizza); color: var(--pizza); background: var(--pizza-light); }
 
   /* ===== TOAST ===== */
   .toast {
-    position: fixed;
-    bottom: 30px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: #1a1a2e;
-    color: white;
-    padding: 14px 24px;
-    border-radius: 999px;
-    font-size: 0.9rem;
-    font-weight: 600;
-    z-index: 300;
-    opacity: 0;
-    transition: opacity .3s;
-    white-space: nowrap;
-    pointer-events: none;
+    position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+    background: #1a1a2e; color: white; padding: 14px 24px; border-radius: 999px;
+    font-size: 0.9rem; font-weight: 600; z-index: 300; opacity: 0; transition: opacity .3s;
+    white-space: nowrap; pointer-events: none;
   }
   .toast.show { opacity: 1; }
-
-  /* Bandeau de connexion */
   .conn-banner {
-    position: fixed;
-    top: 0; left: 0; right: 0;
-    z-index: 400;
-    background: #d32f2f;
-    color: white;
-    text-align: center;
-    padding: 10px 16px;
-    font-size: 0.85rem;
-    font-weight: 700;
-    transform: translateY(-100%);
-    transition: transform .25s;
+    position: fixed; top: 0; left: 0; right: 0; z-index: 400;
+    background: #d32f2f; color: white; text-align: center; padding: 10px 16px;
+    font-size: 0.85rem; font-weight: 700; transform: translateY(-100%); transition: transform .25s;
   }
   .conn-banner.show { transform: translateY(0); }
 
-  /* ===== INTRO CINÉMATIQUE : travelling caméra ===== */
+  /* ===== INTRO CINÉMATIQUE ===== */
   #intro {
-    position: fixed;
-    inset: 0;
-    z-index: 500;
-    background: #16162e;
-    overflow: hidden;
-    transition: opacity .6s ease, visibility .6s;
+    position: fixed; inset: 0; z-index: 500; background: #16162e;
+    overflow: hidden; transition: opacity .6s ease, visibility .6s;
   }
   #intro.hide { opacity: 0; visibility: hidden; pointer-events: none; }
   .intro-skip {
-    position: absolute;
-    top: 16px; right: 16px;
-    background: rgba(255,255,255,0.12);
-    color: #fff;
-    border: 1px solid rgba(255,255,255,0.25);
-    border-radius: 999px;
-    padding: 8px 16px;
-    font-weight: 700;
-    font-size: 0.85rem;
-    cursor: pointer;
-    z-index: 10;
+    position: absolute; top: 16px; right: 16px;
+    background: rgba(255,255,255,0.12); color: #fff; border: 1px solid rgba(255,255,255,0.25);
+    border-radius: 999px; padding: 8px 16px; font-weight: 700; font-size: 0.85rem; cursor: pointer; z-index: 10;
   }
-  /* Chaque scène = un thème en plein écran, empilées les unes sur les autres */
   .intro-scene {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    text-align: center;
-    padding: 24px;
-    opacity: 0;
-    transform: scale(1.5);
-    filter: blur(14px);
+    position: absolute; inset: 0; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; text-align: center; padding: 24px;
+    opacity: 0; transform: scale(1.5); filter: blur(14px);
     transition: opacity .55s ease, transform .9s cubic-bezier(.22,.8,.36,1), filter .7s ease;
-    background: radial-gradient(circle at 50% 40%, var(--sc, #5b8dee) 0%, #16162e 75%);
+    background: radial-gradient(circle at 50% 40%, var(--sc, #f07830) 0%, #16162e 75%);
   }
-  /* La scène active : caméra "arrive" dessus (zoom-out vers normal) */
-  .intro-scene.active {
-    opacity: 1;
-    transform: scale(1);
-    filter: blur(0);
-    z-index: 2;
-  }
-  /* La scène qu'on quitte : caméra "fonce dedans" (zoom-in + flou + disparition) */
+  .intro-scene.active { opacity: 1; transform: scale(1); filter: blur(0); z-index: 2; }
   .intro-scene.leaving {
-    opacity: 0;
-    transform: scale(2.4);
-    filter: blur(22px);
-    transition: opacity .5s ease, transform .6s cubic-bezier(.55,0,1,.45), filter .5s ease;
-    z-index: 3;
+    opacity: 0; transform: scale(2.4); filter: blur(22px);
+    transition: opacity .5s ease, transform .6s cubic-bezier(.55,0,1,.45), filter .5s ease; z-index: 3;
   }
   .intro-scene .is-emoji {
-    font-size: 5rem;
-    margin-bottom: 14px;
-    transform: scale(.5);
-    opacity: 0;
+    font-size: 5rem; margin-bottom: 14px; transform: scale(.5); opacity: 0;
     transition: transform .6s cubic-bezier(.34,1.56,.64,1) .15s, opacity .4s ease .15s;
   }
   .intro-scene.active .is-emoji { transform: scale(1); opacity: 1; }
   .intro-scene .is-label {
-    color: #fff;
-    font-size: 1.6rem;
-    font-weight: 900;
-    margin-bottom: 18px;
-    opacity: 0;
-    transform: translateY(16px);
-    transition: transform .5s ease .25s, opacity .5s ease .25s;
+    color: #fff; font-size: 1.6rem; font-weight: 900; margin-bottom: 8px; opacity: 0;
+    transform: translateY(16px); transition: transform .5s ease .25s, opacity .5s ease .25s;
   }
   .intro-scene.active .is-label { opacity: 1; transform: none; }
+  .intro-scene .is-sub { color: rgba(255,255,255,0.7); font-size: 0.9rem; font-weight: 600; margin-bottom: 16px; opacity: 0; transition: opacity .4s ease .35s; }
+  .intro-scene.active .is-sub { opacity: 1; }
   .intro-chips { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; max-width: 360px; }
   .intro-chip {
-    background: rgba(255,255,255,0.14);
-    border: 1px solid rgba(255,255,255,0.2);
-    color: #fff;
-    border-radius: 999px;
-    padding: 8px 18px;
-    font-size: 0.95rem;
-    font-weight: 700;
-    opacity: 0;
-    transform: translateY(14px) scale(.8);
+    background: rgba(255,255,255,0.14); border: 1px solid rgba(255,255,255,0.2);
+    color: #fff; border-radius: 999px; padding: 8px 18px; font-size: 0.95rem; font-weight: 700;
+    opacity: 0; transform: translateY(14px) scale(.8);
     transition: transform .4s cubic-bezier(.34,1.56,.64,1), opacity .35s ease;
   }
   .intro-chip.none { font-style: italic; opacity: 0; font-weight: 400; }
   .intro-scene.active .intro-chip { opacity: 1; transform: none; }
   .intro-scene.active .intro-chip.none { opacity: 0.6; }
-  /* Scène finale */
   .intro-scene.intro-final .is-label { font-size: 2.3rem; }
 
-  /* ===== ANIMATION D'ENTRÉE (motion design) =====
-     La cascade du landing ne démarre qu'à la fin de l'intro
-     (classe .intro-over posée sur <body>). */
+  /* ===== LANDING ANIMATIONS ===== */
   #landing > * { opacity: 0; }
-  .intro-over #landing > * {
-    animation: heroIn .7s cubic-bezier(.22,1.2,.36,1) forwards;
-  }
-  .intro-over #landing .event-badge   { animation-delay: .1s; }
-  .intro-over #landing .hero-title    { animation-delay: .25s; }
-  .intro-over #landing .hero-sub      { animation-delay: .45s; }
-  .intro-over #landing .countdown-card{ animation-delay: .65s; }
-  .intro-over #landing .name-card     { animation-delay: .85s; }
-
+  .intro-over #landing > * { animation: heroIn .7s cubic-bezier(.22,1.2,.36,1) forwards; }
+  .intro-over #landing .event-badge    { animation-delay: .1s; }
+  .intro-over #landing .hero-title     { animation-delay: .25s; }
+  .intro-over #landing .hero-sub       { animation-delay: .45s; }
+  .intro-over #landing .countdown-card { animation-delay: .65s; }
+  .intro-over #landing .name-card      { animation-delay: .85s; }
   @keyframes heroIn {
     0%   { opacity: 0; transform: translateY(40px) scale(0.92); filter: blur(6px); }
     60%  { filter: blur(0); }
     100% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0); }
   }
+  .hero-title span { display: inline-block; animation: titlePop .6s cubic-bezier(.34,1.56,.64,1) 1s backwards; }
+  @keyframes titlePop { 0% { transform: scale(0) rotate(-8deg); } 70% { transform: scale(1.15) rotate(2deg); } 100% { transform: scale(1) rotate(0); } }
 
-  .hero-title span {
-    display: inline-block;
-    animation: titlePop .6s cubic-bezier(.34,1.56,.64,1) 1s backwards;
-  }
-  @keyframes titlePop {
-    0%   { transform: scale(0) rotate(-8deg); }
-    70%  { transform: scale(1.15) rotate(2deg); }
-    100% { transform: scale(1) rotate(0); }
-  }
-
-  /* les emojis du fond entrent en douceur aussi */
-  .bg-food { animation: foodFloat linear infinite, foodIn 1.2s ease backwards; }
-  @keyframes foodIn {
-    from { opacity: 0; transform: scale(0); }
-    to   { opacity: 0.14; transform: scale(1); }
-  }
-
-  /* ===== COMPTE À REBOURS ===== */
+  /* ===== COUNTDOWN ===== */
   .countdown-card {
-    width: 100%;
-    max-width: 380px;
-    background: linear-gradient(135deg, var(--blue), #8b6bf0);
-    border-radius: var(--radius);
-    box-shadow: 0 8px 30px rgba(91,141,238,0.35);
-    padding: 22px 20px;
-    margin-bottom: 22px;
-    text-align: center;
-    color: white;
+    width: 100%; max-width: 380px;
+    background: linear-gradient(135deg, var(--pizza), #e04420);
+    border-radius: var(--radius); box-shadow: 0 8px 30px rgba(240,120,48,0.35);
+    padding: 22px 20px; margin-bottom: 22px; text-align: center; color: white;
     animation: cardPulse 3s ease-in-out infinite;
   }
   @keyframes cardPulse {
-    0%, 100% { transform: scale(1); box-shadow: 0 8px 30px rgba(91,141,238,0.35); }
-    50% { transform: scale(1.015); box-shadow: 0 12px 40px rgba(139,107,240,0.45); }
+    0%, 100% { transform: scale(1); box-shadow: 0 8px 30px rgba(240,120,48,0.35); }
+    50% { transform: scale(1.015); box-shadow: 0 12px 40px rgba(224,68,32,0.45); }
   }
-  .countdown-label {
-    font-weight: 800;
-    font-size: 0.95rem;
-    margin-bottom: 14px;
-    letter-spacing: 0.3px;
-  }
-  .countdown-grid {
-    display: grid;
-    grid-template-columns: repeat(4, 1fr);
-    gap: 8px;
-  }
-  .cd-unit {
-    background: rgba(255,255,255,0.18);
-    border-radius: 14px;
-    padding: 10px 4px;
-    backdrop-filter: blur(4px);
-  }
-  .cd-num {
-    font-size: 1.6rem;
-    font-weight: 900;
-    font-variant-numeric: tabular-nums;
-    animation: cdPop .35s ease;
-  }
-  @keyframes cdPop {
-    from { transform: scale(1.25); opacity: 0.4; }
-    to   { transform: scale(1);    opacity: 1; }
-  }
-  .cd-txt {
-    font-size: 0.65rem;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-    opacity: 0.85;
-    margin-top: 2px;
-  }
+  .countdown-label { font-weight: 800; font-size: 0.95rem; margin-bottom: 14px; }
+  .countdown-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .cd-unit { background: rgba(255,255,255,0.18); border-radius: 14px; padding: 10px 4px; }
+  .cd-num { font-size: 1.6rem; font-weight: 900; font-variant-numeric: tabular-nums; }
+  @keyframes cdPop { from { transform: scale(1.25); opacity: 0.4; } to { transform: scale(1); opacity: 1; } }
+  .cd-txt { font-size: 0.65rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; opacity: 0.85; margin-top: 2px; }
 
   .hidden { display: none !important; }
 </style>
 </head>
 <body>
 
-<!-- Fond animé -->
 <div class="bg-canvas" id="bgCanvas">
-  <div class="bg-blob blob1"></div>
-  <div class="bg-blob blob2"></div>
-  <div class="bg-blob blob3"></div>
-  <div class="bg-blob blob4"></div>
-  <div class="bg-blob blob5"></div>
+  <div class="bg-blob blob1"></div><div class="bg-blob blob2"></div>
+  <div class="bg-blob blob3"></div><div class="bg-blob blob4"></div><div class="bg-blob blob5"></div>
 </div>
 
-<!-- ===== INTRO CINÉMATIQUE : travelling caméra ===== -->
+<!-- INTRO -->
 <div id="intro">
   <button class="intro-skip" onclick="skipIntro()">Passer →</button>
   <div id="introScenes"></div>
 </div>
 
-<!-- ===== LANDING ===== -->
+<!-- LANDING -->
 <section id="landing">
-  <div class="event-badge">🎉 Goûter de fin d'année</div>
-  <h1 class="hero-title">On organise<br>notre <span>goûter&nbsp;!</span></h1>
-  <p class="hero-sub">Rejoins un groupe avec tes potes, choisis un thème, et viens partager le meilleur goûter de l'année.</p>
+  <div class="event-badge">🍕 Soirée Pizza</div>
+  <h1 class="hero-title">On commande<br>des <span>pizzas&nbsp;!</span></h1>
+  <p class="hero-sub">Crée un groupe pizza ou rejoins-en un. Choisis le nom, la taille, et invite tes potes.</p>
 
   <div class="countdown-card">
     <div class="countdown-label">⏳ Rendez-vous lundi 23 à 18h · Bout du Monde</div>
@@ -694,51 +326,55 @@
   <div class="name-card">
     <label>Ton prénom</label>
     <input id="nameInput" type="text" placeholder="Ex: Léa, Tom, Inès..." maxlength="30" autocomplete="off" />
-    <button class="btn-primary" onclick="submitName()">👋 Rejoindre</button>
+    <button class="btn-primary" onclick="submitName()">🍕 Rejoindre</button>
   </div>
 </section>
 
-<!-- ===== DASHBOARD ===== -->
+<!-- DASHBOARD -->
 <section id="dashboard">
   <header>
-    <span class="header-logo">🎊</span>
-    <div class="event-badge-sm">🎉 Goûter de fin d'année</div>
+    <span class="header-logo">🍕</span>
+    <div class="event-badge-sm">🍕 Soirée Pizza</div>
     <div class="header-name" id="headerName"></div>
     <button class="icon-btn" title="Déconnexion" onclick="logout()">⇥</button>
   </header>
 
   <div class="dash-content">
-    <h2 class="greeting" id="greetingLine">Salut <span id="greetName"></span> 👋</h2>
-    <p class="greeting-sub">Choisis un groupe à rejoindre.</p>
+    <h2 class="greeting" id="greetingLine"></h2>
+    <p class="greeting-sub">Crée une pizza ou rejoins un groupe existant 🍕</p>
 
     <div id="statsGrid" style="margin-bottom:28px;">
       <div style="background:white;border-radius:16px;padding:18px 20px;box-shadow:var(--shadow);">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
-          <span style="font-weight:800;font-size:0.95rem;">🍽️ Ont choisi un thème</span>
+          <span style="font-weight:800;font-size:0.95rem;">🍕 Ont choisi une pizza</span>
           <span style="font-size:1.3rem;font-weight:900;" id="statInGroup">0</span>
         </div>
         <div style="background:#eee;border-radius:999px;height:10px;overflow:hidden;">
-          <div id="statBar" style="background:var(--blue);height:100%;border-radius:999px;transition:width .4s;width:0%"></div>
+          <div id="statBar" style="background:var(--pizza);height:100%;border-radius:999px;transition:width .4s;width:0%"></div>
         </div>
         <div style="margin-top:8px;font-size:0.8rem;color:#888;display:flex;justify-content:space-between;">
-          <span id="statBarLabel">0 sur 0 élèves inscrits</span>
+          <span id="statBarLabel">0 sur 23 élèves</span>
           <span>🎈 <span id="statConnected">0</span> connectés</span>
         </div>
       </div>
     </div>
 
-    <div class="section-title">🥳 Les groupes</div>
-    <div id="groupsContainer"></div>
+    <div class="section-title">➕ Créer une pizza</div>
+    <div class="create-card" id="createCard">
+      <input id="pizzaNameInput" type="text" placeholder="Nom de la pizza (ex: Reine, 4 Fromages...)" maxlength="40" autocomplete="off"/>
+      <div class="size-grid" id="sizeGrid"></div>
+      <button class="btn-join" onclick="createPizza()">🍕 Créer cette pizza</button>
+    </div>
 
-    <div class="section-title">✨ Autre — ce que chacun apporte</div>
-    <div id="autreContainer"></div>
+    <div class="section-title">🍕 Les pizzas</div>
+    <div id="pizzasContainer"></div>
 
     <div class="section-title">👥 Tous les inscrits</div>
     <div class="students-grid" id="studentsGrid"></div>
   </div>
 </section>
 
-<!-- ===== MODAL ===== -->
+<!-- MODAL (admin: ajouter un élève) -->
 <div class="modal-overlay hidden" id="modalOverlay">
   <div class="modal-sheet">
     <div class="modal-title" id="modalTitle"></div>
@@ -757,275 +393,149 @@
 <script src="/socket.io/socket.io.js"></script>
 <script>
 const socket = io();
-
 let myName = null;
-let myLoc = null;       // { type:'theme'|'autre', id } | null
 let lastState = null;
-let isDelegate = false; // voit les stats du haut
-let isAdmin = false;    // Léo : peut ajouter un élève dans un groupe
+let isDelegate = false;
+let isAdmin = false;
+let selectedSize = 'Moyenne';
 
-// ===== FOND : emojis répartis partout =====
-(function spawnFood() {
-  const foods = ['🥨','🎂','🥤','🥖','🎉','✨','🧃','🍰','🍪','🍩','🍫','🍬','🥐','🧁','🍭','🍇','🥪','🍓'];
-  const canvas = document.getElementById('bgCanvas');
-  for (let i = 0; i < 22; i++) {
+// Background emojis
+(function() {
+  const foods = ['🍕','🧀','🍅','🌿','🫒','🌶️','🍕','🥖','🍕','🧄','🍕','🍕','🥗','🍝','🍕','🍕','🥤','🍕'];
+  const c = document.getElementById('bgCanvas');
+  for (let i = 0; i < 20; i++) {
     const el = document.createElement('div');
     el.className = 'bg-food';
     el.textContent = foods[i % foods.length];
-    el.style.top = (Math.random() * 96) + '%';
-    el.style.left = (Math.random() * 96) + '%';
-    el.style.fontSize = (1.2 + Math.random() * 1.6).toFixed(2) + 'rem';
-    el.style.animationDuration = (10 + Math.random() * 14).toFixed(1) + 's, 1.2s';
-    el.style.animationDelay = '-' + (Math.random() * 12).toFixed(1) + 's, ' + (Math.random() * 0.9).toFixed(2) + 's';
-    canvas.appendChild(el);
+    el.style.top = (Math.random()*96)+'%';
+    el.style.left = (Math.random()*96)+'%';
+    el.style.fontSize = (1.2+Math.random()*1.6).toFixed(2)+'rem';
+    el.style.animationDuration = (10+Math.random()*14).toFixed(1)+'s, 1.2s';
+    el.style.animationDelay = '-'+(Math.random()*12).toFixed(1)+'s, '+(Math.random()*0.9).toFixed(2)+'s';
+    c.appendChild(el);
   }
 })();
 
-// ===== ÉTAT DE CONNEXION =====
-// Quand la connexion s'établit OU se rétablit (reconnexion réseau),
-// on se ré-inscrit automatiquement pour ne jamais perdre sa place.
-socket.on('connect', () => {
-  setConnStatus(true);
-  if (myName) socket.emit('join', { name: myName });
-});
-socket.on('disconnect', () => setConnStatus(false));
-socket.on('connect_error', () => setConnStatus(false));
-
-function setConnStatus(ok) {
+// Connection
+socket.on('connect', () => { setConn(true); if (myName) socket.emit('join', { name: myName }); });
+socket.on('disconnect', () => setConn(false));
+socket.on('connect_error', () => setConn(false));
+function setConn(ok) {
   const b = document.getElementById('connBanner');
-  if (ok) {
-    b.classList.remove('show');
-  } else {
-    b.textContent = '⚠️ Connexion au serveur perdue… reconnexion en cours';
-    b.classList.add('show');
-  }
+  if (ok) b.classList.remove('show');
+  else { b.textContent = '⚠️ Connexion perdue… reconnexion en cours'; b.classList.add('show'); }
 }
 
-// ===== CONNEXION =====
+// Join
 function submitName() {
   const val = document.getElementById('nameInput').value.trim();
   if (!val) { showToast('Entre ton prénom !'); return; }
-  if (!socket.connected) { showToast('Pas de connexion au serveur…'); return; }
+  if (!socket.connected) { showToast('Pas de connexion…'); return; }
   socket.emit('join', { name: val });
 }
-document.getElementById('nameInput').addEventListener('keydown', e => {
-  if (e.key === 'Enter') submitName();
-});
+document.getElementById('nameInput').addEventListener('keydown', e => { if (e.key==='Enter') submitName(); });
 
 socket.on('joined', ({ name, delegateLabel, isAdmin: admin }) => {
   myName = name;
   isDelegate = !!delegateLabel;
   isAdmin = !!admin;
-
-  // Message d'accueil : les délégués sont salués comme tels
-  const greeting = document.getElementById('greetingLine');
-  greeting.innerHTML = isDelegate
+  const g = document.getElementById('greetingLine');
+  g.innerHTML = isDelegate
     ? `Salut ${esc(name)}, ${esc(delegateLabel)} 👋`
     : `Salut ${esc(name)} 👋`;
-
-  document.getElementById('statsGrid').style.display = 'block';
-
-  document.getElementById('headerName').innerHTML = `👋 ${esc(name)}`;
+  document.getElementById('headerName').innerHTML = `🍕 ${esc(name)}`;
   document.getElementById('landing').style.display = 'none';
   document.getElementById('dashboard').style.display = 'block';
-  if (lastState) {
-    recomputeMyLoc(lastState);
-    render(lastState);
-  }
+  if (lastState) render(lastState);
 });
 
 function logout() {
-  // On revient juste à l'écran d'accueil SANS quitter son groupe :
-  // l'élève reste inscrit (dans saucisson, etc.) et le retrouve en remettant son pseudo.
-  myName = null;
-  myLoc = null;
-  isDelegate = false;
-  isAdmin = false;
+  myName = null; isDelegate = false; isAdmin = false;
   document.getElementById('landing').style.display = 'flex';
   document.getElementById('dashboard').style.display = 'none';
   document.getElementById('nameInput').value = '';
 }
 
-// ===== STATE =====
-function recomputeMyLoc(state) {
-  myLoc = null;
-  if (!myName) return;
-  state.themes.forEach(t => {
-    if (state.groups[t.id].members.includes(myName)) myLoc = { type: 'theme', id: t.id };
-  });
-  const a = state.autreGroups.find(g => g.member === myName);
-  if (a) myLoc = { type: 'autre', id: a.id };
-}
-
+// State
 socket.on('state', (state) => {
   lastState = state;
-  runIntro(state); // ne se lance qu'une fois, avec les vraies données
-  if (myName) {
-    recomputeMyLoc(state);
-    render(state);
-  } else {
-    document.getElementById('statConnected').textContent = state.connected;
-  }
+  runIntro(state);
+  buildSizeGrid(state);
+  if (myName) render(state);
+  else document.getElementById('statConnected').textContent = state.connected;
 });
-
-// ===== INTRO CINÉMATIQUE : travelling caméra (~8s) =====
-// La caméra "fonce" d'un thème à l'autre en plein écran, en montrant les
-// vrais inscrits de chaque groupe. Purement visuel : aucune donnée modifiée.
-let introStarted = false;
-let introTimers = [];
-function endIntro() {
-  introTimers.forEach(clearTimeout);
-  document.getElementById('intro').classList.add('hide');
-  document.body.classList.add('intro-over'); // déclenche la cascade du landing
-}
-function skipIntro() {
-  introStarted = true;
-  endIntro();
-}
-function runIntro(state) {
-  if (introStarted) return;
-  introStarted = true;
-
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    endIntro();
-    return;
-  }
-
-  const colors = ['#5b8dee', '#f07830', '#8b6bf0', '#2bbf8a', '#e0527a', '#3aa0c9', '#caa15a'];
-  const root = document.getElementById('introScenes');
-  root.innerHTML = '';
-
-  const scenes = state.themes.map((t, i) => {
-    const members = state.groups[t.id].members;
-    let chips = members.length
-      ? members.map(m => `<span class="intro-chip">${esc(m)}</span>`).join('')
-      : `<span class="intro-chip none">personne encore…</span>`;
-    return `
-      <div class="intro-scene" style="--sc:${colors[i % colors.length]}">
-        <div class="is-emoji">${t.emoji}</div>
-        <div class="is-label">${esc(t.label)}</div>
-        <div class="intro-chips">${chips}</div>
-      </div>`;
-  });
-  scenes.push(`
-    <div class="intro-scene intro-final" style="--sc:#f0c34a">
-      <div class="is-emoji">🎉</div>
-      <div class="is-label">C'est parti !</div>
-    </div>`);
-  root.innerHTML = scenes.join('');
-
-  const els = Array.from(root.querySelectorAll('.intro-scene'));
-  const HOLD = 1100;   // temps où la scène est nette, à l'arrêt
-  const TRAVEL = 750;  // durée du "saut" caméra vers la suivante
-
-  els[0].classList.add('active');
-  for (let i = 1; i < els.length; i++) {
-    introTimers.push(setTimeout(() => {
-      els[i - 1].classList.remove('active');
-      els[i - 1].classList.add('leaving');
-      els[i].classList.add('active');
-    }, i * (HOLD + TRAVEL)));
-  }
-
-  const T_END = els.length * (HOLD + TRAVEL) + HOLD;
-  introTimers.push(setTimeout(endIntro, T_END));
-}
-// Si le serveur met trop de temps (réveil Render), on n'attend pas : on passe l'intro
-setTimeout(() => { if (!introStarted) skipIntro(); }, 2500);
-
 socket.on('groupError', ({ message }) => showToast(message));
 
-// ===== RENDU =====
+// Size selector
+function buildSizeGrid(state) {
+  const g = document.getElementById('sizeGrid');
+  if (g.children.length) return;
+  (state.sizes || []).forEach(s => {
+    const max = state.sizeMax[s];
+    const d = document.createElement('div');
+    d.className = 'size-opt' + (s === selectedSize ? ' sel' : '');
+    d.innerHTML = `${s}<small>${max} pers.</small>`;
+    d.onclick = () => {
+      selectedSize = s;
+      g.querySelectorAll('.size-opt').forEach(x => x.classList.remove('sel'));
+      d.classList.add('sel');
+    };
+    g.appendChild(d);
+  });
+}
+
+// Render
 function render(state) {
-  // Stats (visibles seulement pour les délégués)
-  const inGroup = state.themes.reduce((a, t) => a + state.groups[t.id].members.length, 0) + state.autreGroups.length;
+  const inGroup = state.pizzas.reduce((a, p) => a + p.members.length, 0);
   const CLASS_SIZE = 23;
   const pct = Math.round((inGroup / CLASS_SIZE) * 100);
-
   document.getElementById('statInGroup').textContent = inGroup;
   document.getElementById('statBar').style.width = pct + '%';
   document.getElementById('statBarLabel').textContent = `${inGroup} sur ${CLASS_SIZE} élèves`;
   document.getElementById('statConnected').textContent = state.connected;
 
-  // Thèmes classiques (illimité)
-  const container = document.getElementById('groupsContainer');
-  container.innerHTML = '';
-  state.themes.forEach(theme => {
-    const group = state.groups[theme.id];
-    const isMine = myLoc && myLoc.type === 'theme' && myLoc.id === theme.id;
+  const myPizza = state.pizzas.find(p => p.members.includes(myName));
 
-    const MAX = theme.max || 5;
-    const isFull = group.members.length >= MAX && !isMine;
+  const c = document.getElementById('pizzasContainer');
+  c.innerHTML = '';
+  if (state.pizzas.length === 0) {
+    c.innerHTML = '<p style="color:#aaa;font-style:italic;margin-bottom:20px;">Aucune pizza créée pour l\'instant… Sois le premier !</p>';
+  }
+  state.pizzas.forEach(pizza => {
+    const isMine = myPizza && myPizza.id === pizza.id;
+    const max = state.sizeMax[pizza.size] || 4;
+    const isFull = pizza.members.length >= max && !isMine;
 
     const card = document.createElement('div');
-    card.className = 'group-card' + (isMine ? ' mine' : '');
+    card.className = 'pizza-card' + (isMine ? ' mine' : '');
 
     let membersHtml = '';
-    if (group.members.length === 0) {
-      membersHtml = `<li class="member-row empty"><span>Personne pour l'instant...</span></li>`;
-    } else {
-      group.members.forEach(m => {
-        membersHtml += `<li class="member-row"><span>•</span><span>${esc(m)}</span></li>`;
-      });
-    }
+    pizza.members.forEach(m => {
+      membersHtml += `<li class="member-row"><span>•</span><span>${esc(m)}</span></li>`;
+    });
 
     const btnHtml = isMine
-      ? `<button class="btn-join leave" onclick="leaveGroup()">← Quitter le groupe</button>`
+      ? `<button class="btn-join leave" onclick="leavePizza()">← Quitter cette pizza</button>`
       : isFull
-        ? `<button class="btn-join" disabled style="opacity:0.45;cursor:not-allowed;">🔒 Complet (${MAX}/${MAX})</button>`
-        : `<button class="btn-join" onclick="joinTheme('${theme.id}')">→ Rejoindre</button>`;
+        ? `<button class="btn-join" disabled style="opacity:0.45;cursor:not-allowed;">🔒 Complète (${max}/${max})</button>`
+        : `<button class="btn-join" onclick="joinPizza(${pizza.id})">→ Rejoindre</button>`;
 
-    // Léo (admin) peut ajouter un prénom dans n'importe quel groupe
     const adminBtn = isAdmin
-      ? `<button class="btn-join" style="background:var(--blue);margin-top:10px;" onclick="askAdminAdd('${theme.id}')">+ Ajouter un élève</button>`
+      ? `<button class="btn-join" style="background:var(--blue);margin-top:10px;" onclick="askAdminAdd(${pizza.id})">+ Ajouter un élève</button>`
       : '';
 
     card.innerHTML = `
-      <div class="group-deco">${theme.emoji}</div>
-      <div class="theme-badge">${theme.emoji} ${theme.label}</div>
-      <div class="group-name">${theme.label}</div>
-      <div class="count-pill">👤 ${group.members.length}/${MAX} ${group.members.length > 1 ? 'inscrits' : 'inscrit'}</div>
+      <div class="pizza-deco">🍕</div>
+      <div class="pizza-badge">🍕 ${esc(pizza.size)}</div>
+      <div class="pizza-name">${esc(pizza.name)}</div>
+      <div class="pizza-size">${esc(pizza.size)} · ${pizza.members.length}/${max} personnes</div>
       <ul class="members-list">${membersHtml}</ul>
       ${btnHtml}
       ${adminBtn}
     `;
-    container.appendChild(card);
+    c.appendChild(card);
   });
 
-  // Section "Autre" : entrées individuelles + bouton d'ajout
-  const ac = document.getElementById('autreContainer');
-  ac.innerHTML = '';
-  state.autreGroups.forEach(g => {
-    const mine = g.member === myName;
-    const row = document.createElement('div');
-    row.className = 'autre-entry' + (mine ? ' mine' : '');
-    row.innerHTML = `
-      <span class="ae-emoji">${state.autre.emoji}</span>
-      <div class="ae-text">
-        <div class="ae-item">${esc(g.item)}</div>
-        <div class="ae-who">apporté par ${esc(g.member)}</div>
-      </div>
-      ${mine ? `<button class="icon-btn" title="Retirer" onclick="leaveGroup()">✕</button>` : ''}
-    `;
-    ac.appendChild(row);
-  });
-  const addCard = document.createElement('div');
-  addCard.className = 'group-card';
-  const isMineAutre = myLoc && myLoc.type === 'autre';
-  addCard.innerHTML = `
-    <div class="group-deco">${state.autre.emoji}</div>
-    <div class="theme-badge">${state.autre.emoji} ${state.autre.label}</div>
-    <div class="group-name">Autre chose ?</div>
-    <p style="color:#777;font-size:0.9rem;margin-bottom:14px;line-height:1.5;">
-      Tu apportes quelque chose qui n'est pas dans les thèmes ? Ajoute-le ici (juste toi).
-    </p>
-    ${isMineAutre
-      ? `<button class="btn-join leave" onclick="leaveGroup()">← Retirer mon apport</button>`
-      : `<button class="btn-join" onclick="askAutre()">+ Ajouter mon apport</button>`}
-  `;
-  ac.appendChild(addCard);
-
-  // Inscrits
   const grid = document.getElementById('studentsGrid');
   grid.innerHTML = '';
   state.students.forEach(name => {
@@ -1036,99 +546,125 @@ function render(state) {
   });
 }
 
-// ===== ACTIONS =====
-// Thème classique : pas de nom à choisir, on rejoint direct
-function joinTheme(themeId) {
-  socket.emit('joinTheme', { themeId });
+// Actions
+function createPizza() {
+  const name = document.getElementById('pizzaNameInput').value.trim();
+  if (!name) { showToast('Donne un nom à la pizza !'); return; }
+  socket.emit('createPizza', { name, size: selectedSize });
+  document.getElementById('pizzaNameInput').value = '';
 }
+document.getElementById('pizzaNameInput').addEventListener('keydown', e => { if (e.key==='Enter') createPizza(); });
 
-// Autre : on demande ce qu'on apporte
-let modalMode = null;
-let adminThemeId = null;
+function joinPizza(id) { socket.emit('joinPizza', { pizzaId: id }); }
+function leavePizza() { socket.emit('leavePizza'); }
 
-// Léo : ajouter un prénom dans un groupe
-function askAdminAdd(themeId) {
-  modalMode = 'admin';
-  adminThemeId = themeId;
+// Admin modal
+let adminPizzaId = null;
+function askAdminAdd(pizzaId) {
+  adminPizzaId = pizzaId;
   document.getElementById('modalTitle').textContent = '➕ Ajouter un élève';
-  document.getElementById('modalSub').textContent = 'Quel prénom veux-tu ajouter à ce groupe ?';
+  document.getElementById('modalSub').textContent = 'Quel prénom ajouter à cette pizza ?';
   document.getElementById('modalInput').placeholder = 'Ex: Léa, Tom, Inès...';
   document.getElementById('modalInput').value = '';
   document.getElementById('modalOverlay').classList.remove('hidden');
   setTimeout(() => document.getElementById('modalInput').focus(), 80);
 }
-
-function askAutre() {
-  modalMode = 'autre';
-  document.getElementById('modalTitle').textContent = '✨ Tu as choisi « Autre »';
-  document.getElementById('modalSub').textContent = "Qu'est-ce que tu vas acheter / apporter ?";
-  document.getElementById('modalInput').placeholder = 'Ex: Bonbons, Jus de pomme, Cookies...';
-  document.getElementById('modalInput').value = '';
-  document.getElementById('modalOverlay').classList.remove('hidden');
-  setTimeout(() => document.getElementById('modalInput').focus(), 80);
-}
-
 function confirmModal() {
   const val = document.getElementById('modalInput').value.trim();
-  if (!val) { showToast('Dis ce que tu apportes !'); return; }
-  if (modalMode === 'autre') socket.emit('joinAutre', { item: val });
-  if (modalMode === 'admin') socket.emit('adminAddMember', { themeId: adminThemeId, name: val });
+  if (!val) { showToast('Entre un prénom !'); return; }
+  socket.emit('adminAddMember', { pizzaId: adminPizzaId, name: val });
   closeModal();
 }
-
-function closeModal() {
-  document.getElementById('modalOverlay').classList.add('hidden');
-  modalMode = null;
-}
+function closeModal() { document.getElementById('modalOverlay').classList.add('hidden'); }
 document.getElementById('modalInput').addEventListener('keydown', e => {
-  if (e.key === 'Enter') confirmModal();
-  if (e.key === 'Escape') closeModal();
+  if (e.key==='Enter') confirmModal();
+  if (e.key==='Escape') closeModal();
 });
 
-function leaveGroup() { socket.emit('leaveGroup'); }
+// Intro
+let introStarted = false;
+let introTimers = [];
+function endIntro() {
+  introTimers.forEach(clearTimeout);
+  document.getElementById('intro').classList.add('hide');
+  document.body.classList.add('intro-over');
+}
+function skipIntro() { introStarted = true; endIntro(); }
+function runIntro(state) {
+  if (introStarted) return;
+  introStarted = true;
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) { endIntro(); return; }
 
-// ===== COMPTE À REBOURS : lundi 23 juin à 18h =====
-(function countdown() {
-  const target = new Date(2026, 5, 23, 18, 0, 0); // mois 5 = juin (0-indexé)
-  const elDays = document.getElementById('cdDays');
-  const elHours = document.getElementById('cdHours');
-  const elMins = document.getElementById('cdMins');
-  const elSecs = document.getElementById('cdSecs');
+  const colors = ['#f07830', '#e04420', '#d4a017', '#c62828', '#f9a825', '#e65100'];
+  const root = document.getElementById('introScenes');
+  root.innerHTML = '';
 
-  function pad(n) { return String(n).padStart(2, '0'); }
+  // Scene 1: titre
+  root.innerHTML += `
+    <div class="intro-scene" style="--sc:#f07830">
+      <div class="is-emoji">🍕</div>
+      <div class="is-label">Soirée Pizza</div>
+      <div class="is-sub">Lundi 23 · 18h · Bout du Monde</div>
+    </div>`;
 
+  // Scenes: chaque pizza existante
+  state.pizzas.forEach((p, i) => {
+    let chips = p.members.length
+      ? p.members.map(m => `<span class="intro-chip">${esc(m)}</span>`).join('')
+      : `<span class="intro-chip none">personne encore…</span>`;
+    root.innerHTML += `
+      <div class="intro-scene" style="--sc:${colors[(i+1) % colors.length]}">
+        <div class="is-emoji">🍕</div>
+        <div class="is-label">${esc(p.name)}</div>
+        <div class="is-sub">${esc(p.size)} · ${p.members.length} pers.</div>
+        <div class="intro-chips">${chips}</div>
+      </div>`;
+  });
+
+  // Scene finale
+  root.innerHTML += `
+    <div class="intro-scene intro-final" style="--sc:#f0c34a">
+      <div class="is-emoji">🔥</div>
+      <div class="is-label">C'est parti !</div>
+    </div>`;
+
+  const els = Array.from(root.querySelectorAll('.intro-scene'));
+  const HOLD = 1100, TRAVEL = 750;
+  els[0].classList.add('active');
+  for (let i = 1; i < els.length; i++) {
+    introTimers.push(setTimeout(() => {
+      els[i-1].classList.remove('active');
+      els[i-1].classList.add('leaving');
+      els[i].classList.add('active');
+    }, i * (HOLD + TRAVEL)));
+  }
+  introTimers.push(setTimeout(endIntro, els.length * (HOLD + TRAVEL) + HOLD));
+}
+setTimeout(() => { if (!introStarted) skipIntro(); }, 2500);
+
+// Countdown
+(function() {
+  const target = new Date(2026, 5, 23, 18, 0, 0);
+  const pad = n => String(n).padStart(2, '0');
   function tick() {
     const diff = Math.max(0, target - new Date());
-    const days = Math.floor(diff / 86400000);
-    const hours = Math.floor(diff % 86400000 / 3600000);
-    const mins = Math.floor(diff % 3600000 / 60000);
-    const secs = Math.floor(diff % 60000 / 1000);
-
-    elDays.textContent = days;
-    elHours.textContent = pad(hours);
-    elMins.textContent = pad(mins);
-    if (elSecs.textContent !== pad(secs)) {
-      elSecs.textContent = pad(secs);
-      elSecs.style.animation = 'none';
-      void elSecs.offsetWidth;
-      elSecs.style.animation = 'cdPop .35s ease';
-    }
+    document.getElementById('cdDays').textContent = Math.floor(diff / 86400000);
+    document.getElementById('cdHours').textContent = pad(Math.floor(diff % 86400000 / 3600000));
+    document.getElementById('cdMins').textContent = pad(Math.floor(diff % 3600000 / 60000));
+    const s = pad(Math.floor(diff % 60000 / 1000));
+    const el = document.getElementById('cdSecs');
+    if (el.textContent !== s) { el.textContent = s; el.style.animation = 'none'; void el.offsetWidth; el.style.animation = 'cdPop .35s ease'; }
   }
-  tick();
-  setInterval(tick, 1000);
+  tick(); setInterval(tick, 1000);
 })();
 
-// ===== UTILS =====
+// Utils
 function showToast(msg) {
   const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.classList.add('show');
-  clearTimeout(t._timer);
-  t._timer = setTimeout(() => t.classList.remove('show'), 2500);
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(t._timer); t._timer = setTimeout(() => t.classList.remove('show'), 2500);
 }
-function esc(str) {
-  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-}
+function esc(s) { return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
 </script>
 </body>
 </html>

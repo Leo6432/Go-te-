@@ -9,17 +9,7 @@ const io = new Server(server);
 
 app.use(express.static(path.join(__dirname, 'public')));
 
-// 4 thèmes "classiques" : nom = thème, sans limite de places
-const THEMES = [
-  { id: 'boisson',   label: 'Boisson',   emoji: '🥤', max: 5 },
-  { id: 'saucisson', label: 'Saucisson', emoji: '🥖', max: 5 },
-  { id: 'chips',     label: 'Chips',     emoji: '🥨', max: 5 },
-  { id: 'vaisselle', label: 'Verres & assiettes carton', emoji: '🍽️', max: 5 },
-];
-// "Autre" est spécial : chacun crée sa propre entrée (1 personne) avec ce qu'il apporte
-const AUTRE = { id: 'autre', label: 'Autre', emoji: '✨' };
-
-// Délégués (voient les stats) + leur libellé. Léo est aussi admin (peut ajouter des élèves).
+// Délégués + admin (Léo peut ajouter des gens dans une pizza)
 const DELEGATES = {
   louna:  'la déléguée',
   tom:    'le délégué',
@@ -28,7 +18,9 @@ const DELEGATES = {
 };
 const ADMIN_KEY = 'leo';
 
-// Normalisation : insensible à la casse ET aux accents (Léo == leo == LEO)
+const SIZES = ['Petite', 'Moyenne', 'Grande'];
+const SIZE_MAX = { Petite: 2, Moyenne: 3, Grande: 4 };
+
 function normalize(str) {
   return str.normalize('NFD').replace(/[̀-ͯ]/g, '').trim().toLowerCase();
 }
@@ -36,18 +28,13 @@ function normalize(str) {
 // ===== ÉTAT =====
 const registeredNames = new Map();   // normalized -> displayName
 const nameToSocket = new Map();      // displayName -> socketId | null
-const groups = {};                   // themeId -> { members: [displayName] }
-let autreGroups = [];                // [{ id, item, member: displayName }]
-let autreSeq = 1;
+let pizzas = [];                     // [{ id, name, size, members: [displayName] }]
+let pizzaSeq = 1;
 
-THEMES.forEach(t => { groups[t.id] = { members: [] }; });
-
-// ===== PERSISTANCE (Upstash Redis, optionnelle) =====
-// Si les variables d'env Upstash sont présentes, on sauvegarde/charge l'état
-// dans une base externe pour qu'il survive aux redémarrages. Sinon : mémoire seule.
+// ===== PERSISTANCE (Upstash Redis) =====
 const REDIS_URL = process.env.UPSTASH_REDIS_REST_URL;
 const REDIS_TOKEN = process.env.UPSTASH_REDIS_REST_TOKEN;
-const REDIS_KEY = 'gouter:state';
+const REDIS_KEY = 'gouter:state:v2';
 const persistenceOn = !!(REDIS_URL && REDIS_TOKEN);
 
 async function redisCmd(command) {
@@ -63,9 +50,8 @@ async function redisCmd(command) {
 function snapshot() {
   return {
     registeredNames: Array.from(registeredNames.entries()),
-    groups,
-    autreGroups,
-    autreSeq,
+    pizzas,
+    pizzaSeq,
   };
 }
 
@@ -73,10 +59,8 @@ function applySnapshot(data) {
   if (!data) return;
   registeredNames.clear();
   (data.registeredNames || []).forEach(([k, v]) => registeredNames.set(k, v));
-  THEMES.forEach(t => { groups[t.id] = { members: (data.groups?.[t.id]?.members) || [] }; });
-  autreGroups = data.autreGroups || [];
-  autreSeq = data.autreSeq || 1;
-  // Tous les inscrits sont hors ligne au démarrage (pas de socket actif)
+  pizzas = data.pizzas || [];
+  pizzaSeq = data.pizzaSeq || 1;
   nameToSocket.clear();
   registeredNames.forEach(displayName => nameToSocket.set(displayName, null));
 }
@@ -102,7 +86,6 @@ function scheduleSave() {
   }, 400);
 }
 
-// Diffuse l'état à tout le monde ET planifie une sauvegarde
 function broadcastState() {
   io.emit('state', getState());
   scheduleSave();
@@ -114,28 +97,19 @@ function activeCount() {
   return n;
 }
 
-function removeFromEverywhere(name) {
-  THEMES.forEach(t => {
-    groups[t.id].members = groups[t.id].members.filter(m => m !== name);
-  });
-  autreGroups = autreGroups.filter(g => g.member !== name);
+function removeFromAllPizzas(name) {
+  pizzas.forEach(p => { p.members = p.members.filter(m => m !== name); });
 }
 
-function findMyLocation(name) {
-  for (const t of THEMES) {
-    if (groups[t.id].members.includes(name)) return { type: 'theme', id: t.id };
-  }
-  const a = autreGroups.find(g => g.member === name);
-  if (a) return { type: 'autre', id: a.id };
-  return null;
+function findMyPizza(name) {
+  return pizzas.find(p => p.members.includes(name)) || null;
 }
 
 function getState() {
   return {
-    themes: THEMES,
-    autre: AUTRE,
-    groups,
-    autreGroups,
+    sizes: SIZES,
+    sizeMax: SIZE_MAX,
+    pizzas,
     students: Array.from(registeredNames.values()),
     connected: activeCount(),
   };
@@ -150,14 +124,12 @@ io.on('connection', (socket) => {
     const key = normalize(raw);
     if (!key) return;
 
-    // Reconnaît un élève déjà inscrit (même sans accent / majuscule)
     let displayName = registeredNames.get(key);
     if (!displayName) {
       displayName = raw;
       registeredNames.set(key, displayName);
     }
 
-    // Déconnecte l'ancien onglet de ce même élève
     const oldSid = nameToSocket.get(displayName);
     if (oldSid && oldSid !== socket.id) {
       const oldSocket = io.sockets.sockets.get(oldSid);
@@ -173,92 +145,86 @@ io.on('connection', (socket) => {
     broadcastState();
   });
 
-  // Réservé à l'admin (Léo) : ajouter un élève dans un thème classique
-  socket.on('adminAddMember', ({ themeId, name }) => {
+  // Créer une nouvelle pizza
+  socket.on('createPizza', ({ name: pizzaName, size }) => {
+    const who = socket.data.name;
+    if (!who) return;
+    const pName = (pizzaName || '').trim();
+    if (!pName) { socket.emit('groupError', { message: 'Donne un nom à la pizza !' }); return; }
+    if (!SIZES.includes(size)) { socket.emit('groupError', { message: 'Taille invalide' }); return; }
+
+    removeFromAllPizzas(who);
+    pizzas.push({ id: pizzaSeq++, name: pName, size, members: [who] });
+    broadcastState();
+  });
+
+  // Rejoindre une pizza existante
+  socket.on('joinPizza', ({ pizzaId }) => {
+    const who = socket.data.name;
+    if (!who) return;
+    const pizza = pizzas.find(p => p.id === pizzaId);
+    if (!pizza) return;
+
+    const alreadyHere = pizza.members.includes(who);
+    const max = SIZE_MAX[pizza.size] || 4;
+    if (!alreadyHere && pizza.members.length >= max) {
+      socket.emit('groupError', { message: 'Désolé, cette pizza est complète !' });
+      return;
+    }
+
+    removeFromAllPizzas(who);
+    pizza.members.push(who);
+    broadcastState();
+  });
+
+  // Quitter sa pizza
+  socket.on('leavePizza', () => {
+    const who = socket.data.name;
+    if (!who) return;
+    removeFromAllPizzas(who);
+    broadcastState();
+  });
+
+  // Admin (Léo) : ajouter quelqu'un dans une pizza
+  socket.on('adminAddMember', ({ pizzaId, name }) => {
     if (normalize(socket.data.name || '') !== ADMIN_KEY) return;
     const raw = (name || '').trim();
     if (!raw) return;
     const key = normalize(raw);
     if (!key) return;
-    const group = groups[themeId];
-    if (!group) return;
+    const pizza = pizzas.find(p => p.id === pizzaId);
+    if (!pizza) return;
 
     let displayName = registeredNames.get(key);
     if (!displayName) {
       displayName = raw;
       registeredNames.set(key, displayName);
-      nameToSocket.set(displayName, null); // inscrit mais hors ligne
+      nameToSocket.set(displayName, null);
     }
 
-    removeFromEverywhere(displayName);
-    group.members.push(displayName);
-    broadcastState();
-  });
-
-  // Rejoindre un thème classique — limite propre à chaque thème
-  socket.on('joinTheme', ({ themeId }) => {
-    const name = socket.data.name;
-    if (!name) return;
-    const group = groups[themeId];
-    if (!group) return;
-    const theme = THEMES.find(t => t.id === themeId);
-
-    // Si l'élève est déjà dans ce groupe, on ne compte pas sa place en double
-    const alreadyHere = group.members.includes(name);
-    if (!alreadyHere && group.members.length >= theme.max) {
-      socket.emit('groupError', { message: 'Désolé, le groupe est complet !' });
-      return;
-    }
-
-    removeFromEverywhere(name);
-    group.members.push(name);
-    broadcastState();
-  });
-
-  // Créer une entrée "Autre" : 1 personne, avec ce qu'elle apporte
-  socket.on('joinAutre', ({ item }) => {
-    const name = socket.data.name;
-    if (!name) return;
-    const what = (item || '').trim();
-    if (!what) { socket.emit('groupError', { message: 'Dis ce que tu apportes !' }); return; }
-
-    removeFromEverywhere(name);
-    autreGroups.push({ id: autreSeq++, item: what, member: name });
-    broadcastState();
-  });
-
-  socket.on('leaveGroup', () => {
-    const name = socket.data.name;
-    if (!name) return;
-    removeFromEverywhere(name);
+    removeFromAllPizzas(displayName);
+    pizza.members.push(displayName);
     broadcastState();
   });
 
   socket.on('disconnect', () => {
     const name = socket.data.name;
     if (name && nameToSocket.get(name) === socket.id) {
-      nameToSocket.set(name, null); // reste inscrit, juste hors ligne
+      nameToSocket.set(name, null);
     }
     broadcastState();
   });
 });
 
-// Petit endpoint santé pour l'anti-sommeil
 app.get('/ping', (req, res) => res.send('ok'));
 
 const PORT = process.env.PORT || 3000;
-
 loadState().then(() => {
   server.listen(PORT, () => console.log(`Serveur lancé sur http://localhost:${PORT}`));
 });
 
-// ===== ANTI-SOMMEIL =====
-// Sur Render gratuit, le serveur s'endort après 15 min d'inactivité.
-// On se ping soi-même toutes les 10 min pour rester éveillé.
 const SELF_URL = process.env.RENDER_EXTERNAL_URL;
 if (SELF_URL) {
-  setInterval(() => {
-    fetch(`${SELF_URL}/ping`).catch(() => {});
-  }, 10 * 60 * 1000);
+  setInterval(() => { fetch(`${SELF_URL}/ping`).catch(() => {}); }, 10 * 60 * 1000);
   console.log('🟢 Anti-sommeil activé');
 }
