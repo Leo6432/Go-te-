@@ -901,9 +901,9 @@ socket.on('leoLocation', ({ lat, lng }) => {
   const dist = leoMap.distance(lastLeoPos, SKATEPARK);
   const etaEl = document.getElementById('mapEta');
   if (etaEl) {
-    if (dist < 100) etaEl.textContent = '🏁 Arrivé !';
+    if (dist < 150) etaEl.textContent = '🏁 Arrivé !';
     else {
-      const min = Math.max(1, Math.round(dist / 250));
+      const min = Math.max(1, Math.round((dist / 1000) * 2));
       etaEl.textContent = '~' + min + ' min';
     }
   }
