@@ -13,10 +13,8 @@ app.use(express.static(path.join(__dirname, 'public')));
 const THEMES = [
   { id: 'boisson',   label: 'Boisson',   emoji: '🥤', max: 5 },
   { id: 'saucisson', label: 'Saucisson', emoji: '🥖', max: 5 },
-  { id: 'gateau',    label: 'Gâteau',    emoji: '🎂', max: 5 },
   { id: 'chips',     label: 'Chips',     emoji: '🥨', max: 5 },
-  { id: 'bonbon',    label: 'Bonbons',   emoji: '🍬', max: 5 },
-  { id: 'vaisselle', label: 'Verres & assiettes carton', emoji: '🥤', max: 1 },
+  { id: 'vaisselle', label: 'Verres & assiettes carton', emoji: '🍽️', max: 5 },
 ];
 // "Autre" est spécial : chacun crée sa propre entrée (1 personne) avec ce qu'il apporte
 const AUTRE = { id: 'autre', label: 'Autre', emoji: '✨' };

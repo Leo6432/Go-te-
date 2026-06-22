@@ -682,7 +682,7 @@
   <p class="hero-sub">Rejoins un groupe avec tes potes, choisis un thème, et viens partager le meilleur goûter de l'année.</p>
 
   <div class="countdown-card">
-    <div class="countdown-label">⏳ Rendez-vous jeudi 18 à 14h30</div>
+    <div class="countdown-label">⏳ Rendez-vous lundi 23 à 18h · Bout du Monde</div>
     <div class="countdown-grid">
       <div class="cd-unit"><div class="cd-num" id="cdDays">0</div><div class="cd-txt">jours</div></div>
       <div class="cd-unit"><div class="cd-num" id="cdHours">00</div><div class="cd-txt">heures</div></div>
@@ -1087,16 +1087,9 @@ document.getElementById('modalInput').addEventListener('keydown', e => {
 
 function leaveGroup() { socket.emit('leaveGroup'); }
 
-// ===== COMPTE À REBOURS : jeudi 18 à 14h30 =====
+// ===== COMPTE À REBOURS : lundi 23 juin à 18h =====
 (function countdown() {
-  // Prochain jeudi 18 (du mois courant ou suivant si déjà passé) à 14h30
-  function targetDate() {
-    const now = new Date();
-    let d = new Date(now.getFullYear(), now.getMonth(), 18, 14, 30, 0);
-    if (d <= now) d = new Date(now.getFullYear(), now.getMonth() + 1, 18, 14, 30, 0);
-    return d;
-  }
-  const target = targetDate();
+  const target = new Date(2026, 5, 23, 18, 0, 0); // mois 5 = juin (0-indexé)
   const elDays = document.getElementById('cdDays');
   const elHours = document.getElementById('cdHours');
   const elMins = document.getElementById('cdMins');
