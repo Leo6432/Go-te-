@@ -426,7 +426,7 @@
         </div>
       </div>
       <div class="tracker-notif" style="margin-top:14px;padding-top:12px;border-top:1px solid #eee;">
-        <button class="notif-btn" id="notifBtn" onclick="askNotifPerm()">🔔 Activer les notifications</button>
+        <button class="notif-btn" id="notifBtn">🔔 Activer les notifications</button>
       </div>
       <div class="tracker-admin" id="trackerAdmin" style="display:none;"></div>
       <div class="gps-toggle-wrap" id="gpsToggleWrap" style="display:none;">
@@ -726,37 +726,41 @@ function requestNotifPerm() {
   if (Notification.permission === 'granted') { notifEnabled = true; updateNotifBtn(); return; }
   if (Notification.permission === 'denied') { updateNotifBtn(); return; }
 }
-function askNotifPerm() {
-  if (!('Notification' in window)) { showToast('Notifications non supportées sur ce navigateur'); return; }
-  Notification.requestPermission().then(p => {
-    notifEnabled = p === 'granted';
-    updateNotifBtn();
-    if (notifEnabled) showToast('🔔 Notifications activées !');
-    else showToast('Notifications refusées');
-  });
-}
 function updateNotifBtn() {
   const btn = document.getElementById('notifBtn');
   if (!btn) return;
+  btn.disabled = false;
+  btn.onclick = null;
+  btn.style.cssText = '';
   if (!('Notification' in window)) {
-    btn.textContent = '🔕 Non supporté';
+    btn.textContent = '🔕 Non supporté sur ce navigateur';
     btn.disabled = true;
+    btn.style.borderColor = '#d32f2f';
+    btn.style.color = '#d32f2f';
   } else if (Notification.permission === 'granted') {
-    btn.textContent = '🔔 Notifications activées';
+    btn.textContent = '🔔 Notifications activées ✓';
     btn.style.borderColor = '#4caf50';
     btn.style.color = '#4caf50';
     btn.style.background = '#e8f5e9';
-    btn.onclick = null;
   } else if (Notification.permission === 'denied') {
-    btn.textContent = '🔕 Notifications bloquées (va dans les paramètres du navigateur)';
+    btn.textContent = '🔕 Bloquées — autorise dans les réglages de ton navigateur';
     btn.style.borderColor = '#d32f2f';
     btn.style.color = '#d32f2f';
     btn.disabled = true;
   } else {
     btn.textContent = '🔔 Activer les notifications';
-    btn.onclick = askNotifPerm;
+    btn.onclick = function() {
+      Notification.requestPermission().then(function(permission) {
+        notifEnabled = permission === 'granted';
+        updateNotifBtn();
+        if (notifEnabled) showToast('🔔 Notifications activées !');
+        else if (permission === 'denied') showToast('Tu as bloqué les notifications');
+      });
+    };
   }
 }
+// Init au chargement
+document.addEventListener('DOMContentLoaded', () => updateNotifBtn());
 
 const STEP_NOTIFS = [
   '📋 En attente de vos commandes de pizza !',
