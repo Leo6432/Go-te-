@@ -4,6 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Soirée Pizza 🍕</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <style>
   :root {
     --bg: #f5f5f7;
@@ -301,6 +303,17 @@
   }
   .tracker-admin-btn:hover { border-color: var(--pizza); }
   .tracker-admin-btn.current { border-color: var(--pizza); background: var(--pizza-light); color: var(--pizza); }
+  .tracker-map-wrap {
+    margin-top: 16px; padding-top: 14px; border-top: 1px solid #eee;
+  }
+  .tracker-map-title {
+    font-weight: 800; font-size: 0.88rem; margin-bottom: 10px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .tracker-map-title::after {
+    content: ''; width: 8px; height: 8px; background: #4caf50;
+    border-radius: 50%; animation: pulse 1.5s ease infinite;
+  }
 
   /* ===== MENU CARTE ===== */
   .menu-cats {
@@ -397,6 +410,10 @@
         </div>
       </div>
       <div class="tracker-admin" id="trackerAdmin" style="display:none;"></div>
+      <div class="tracker-map-wrap" id="trackerMapWrap" style="display:none;">
+        <div class="tracker-map-title">📍 Position de Léo en direct</div>
+        <div id="trackerMap" style="height:250px;border-radius:14px;overflow:hidden;"></div>
+      </div>
     </div>
 
     <div class="section-title">📋 La carte ShowPizz</div>
@@ -498,6 +515,7 @@ socket.on('joined', ({ name, delegateLabel, isAdmin: admin }) => {
   document.getElementById('headerName').innerHTML = `🍕 ${esc(name)}`;
   document.getElementById('landing').style.display = 'none';
   document.getElementById('dashboard').style.display = 'block';
+  requestNotifPerm();
   if (lastState) render(lastState);
 });
 
@@ -568,7 +586,8 @@ function render(state) {
         : `<button class="btn-join" onclick="joinPizza(${pizza.id})">→ Rejoindre</button>`;
 
     const adminBtn = isAdmin
-      ? `<button class="btn-join" style="background:var(--blue);margin-top:10px;" onclick="askAdminAdd(${pizza.id})">+ Ajouter un élève</button>`
+      ? `<button class="btn-join" style="background:var(--blue);margin-top:10px;" onclick="askAdminAdd(${pizza.id})">+ Ajouter un élève</button>
+         <button class="btn-join" style="background:#d32f2f;margin-top:8px;" onclick="deletePizza(${pizza.id})">🗑️ Supprimer ce groupe</button>`
       : '';
 
     card.innerHTML = `
@@ -604,6 +623,7 @@ document.getElementById('pizzaNameInput').addEventListener('keydown', e => { if 
 
 function joinPizza(id) { socket.emit('joinPizza', { pizzaId: id }); }
 function leavePizza() { socket.emit('leavePizza'); }
+function deletePizza(id) { socket.emit('deletePizza', { pizzaId: id }); }
 
 // Admin modal
 let adminPizzaId = null;
@@ -660,7 +680,80 @@ function updateTracker(step) {
       box.style.display = 'none';
     }
   }
+
+  // GPS : Léo partage sa position automatiquement en étape 2 (livraison)
+  if (isAdmin && step === 2) {
+    startLeoTracking();
+  } else if (isAdmin) {
+    stopLeoTracking();
+  }
+
+  // Cacher la carte si on n'est plus en livraison
+  if (step !== 2) {
+    document.getElementById('trackerMapWrap').style.display = 'none';
+  }
 }
+
+// ===== NOTIFICATIONS =====
+// Demande la permission dès que l'élève se connecte
+function requestNotifPerm() {
+  if ('Notification' in window && Notification.permission === 'default') {
+    Notification.requestPermission();
+  }
+}
+const STEP_NOTIFS = [
+  '📋 En attente de vos commandes de pizza !',
+  '👨‍🍳 Les pizzas sont en cuisine ! Ça arrive bientôt...',
+  '🛵 Léo et Tom sont en route avec les pizzas ! Suivez-les en direct !',
+  '✅ Les pizzas sont arrivées ! Bon appétit ! 🍕',
+];
+socket.on('stepChanged', ({ step }) => {
+  if ('Notification' in window && Notification.permission === 'granted') {
+    new Notification('Soirée Pizza 🍕', { body: STEP_NOTIFS[step], icon: '🍕' });
+  }
+  showToast(STEP_NOTIFS[step]);
+});
+
+// ===== GÉOLOCALISATION LIVE (Léo → tout le monde) =====
+let leoMap = null;
+let leoMarker = null;
+let geoWatchId = null;
+
+function startLeoTracking() {
+  if (!navigator.geolocation) { showToast('GPS non disponible'); return; }
+  if (geoWatchId !== null) return;
+  geoWatchId = navigator.geolocation.watchPosition(
+    (pos) => {
+      socket.emit('leoLocation', { lat: pos.coords.latitude, lng: pos.coords.longitude });
+    },
+    (err) => { showToast('Erreur GPS : ' + err.message); },
+    { enableHighAccuracy: true, maximumAge: 5000 }
+  );
+  showToast('📍 Partage GPS activé !');
+}
+function stopLeoTracking() {
+  if (geoWatchId !== null) {
+    navigator.geolocation.clearWatch(geoWatchId);
+    geoWatchId = null;
+  }
+}
+
+socket.on('leoLocation', ({ lat, lng }) => {
+  const wrap = document.getElementById('trackerMapWrap');
+  wrap.style.display = 'block';
+
+  if (!leoMap) {
+    leoMap = L.map('trackerMap').setView([lat, lng], 15);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap'
+    }).addTo(leoMap);
+    leoMarker = L.marker([lat, lng]).addTo(leoMap);
+    leoMarker.bindPopup('🛵 Léo est ici !').openPopup();
+  } else {
+    leoMarker.setLatLng([lat, lng]);
+    leoMap.panTo([lat, lng]);
+  }
+});
 
 // ===== MENU SHOWPIZZ =====
 const MENU = [

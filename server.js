@@ -219,8 +219,26 @@ io.on('connection', (socket) => {
   socket.on('setTrackerStep', ({ step }) => {
     if (normalize(socket.data.name || '') !== ADMIN_KEY) return;
     if (typeof step !== 'number' || step < 0 || step > 3) return;
+    const oldStep = trackerStep;
     trackerStep = step;
     broadcastState();
+    if (step !== oldStep) {
+      io.emit('stepChanged', { step });
+    }
+  });
+
+  // Admin : supprimer un groupe pizza
+  socket.on('deletePizza', ({ pizzaId }) => {
+    if (normalize(socket.data.name || '') !== ADMIN_KEY) return;
+    pizzas = pizzas.filter(p => p.id !== pizzaId);
+    broadcastState();
+  });
+
+  // Admin (Léo) : partager sa position GPS en live pendant la livraison
+  socket.on('leoLocation', ({ lat, lng }) => {
+    if (normalize(socket.data.name || '') !== ADMIN_KEY) return;
+    if (typeof lat !== 'number' || typeof lng !== 'number') return;
+    io.emit('leoLocation', { lat, lng });
   });
 
   socket.on('disconnect', () => {
