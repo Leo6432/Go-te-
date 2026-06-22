@@ -303,6 +303,22 @@
   }
   .tracker-admin-btn:hover { border-color: var(--pizza); }
   .tracker-admin-btn.current { border-color: var(--pizza); background: var(--pizza-light); color: var(--pizza); }
+  .notif-btn {
+    width: 100%; padding: 12px; border-radius: 14px; border: 2px solid #e0e0e8;
+    background: white; font-weight: 700; font-size: 0.85rem; cursor: pointer; transition: all .2s;
+  }
+  .gps-toggle-wrap {
+    display: flex; align-items: center; gap: 10px; margin-top: 12px;
+    padding-top: 12px; border-top: 1px solid #eee;
+  }
+  .gps-dot {
+    width: 12px; height: 12px; border-radius: 50%; background: #ccc;
+    flex-shrink: 0; animation: pulse 1.5s ease infinite;
+  }
+  .gps-toggle-btn {
+    flex: 1; padding: 12px; border-radius: 14px; border: 2px solid #e0e0e8;
+    background: white; font-weight: 700; font-size: 0.85rem; cursor: pointer; transition: all .2s;
+  }
   .tracker-map-wrap {
     margin-top: 16px; padding-top: 14px; border-top: 1px solid #eee;
   }
@@ -409,7 +425,14 @@
           <div class="ts-label">Pizzas livrées !</div>
         </div>
       </div>
+      <div class="tracker-notif" style="margin-top:14px;padding-top:12px;border-top:1px solid #eee;">
+        <button class="notif-btn" id="notifBtn" onclick="askNotifPerm()">🔔 Activer les notifications</button>
+      </div>
       <div class="tracker-admin" id="trackerAdmin" style="display:none;"></div>
+      <div class="gps-toggle-wrap" id="gpsToggleWrap" style="display:none;">
+        <span class="gps-dot" id="gpsDot"></span>
+        <button class="gps-toggle-btn" id="gpsToggleBtn">📍 Activer le GPS</button>
+      </div>
       <div class="tracker-map-wrap" id="trackerMapWrap" style="display:none;">
         <div class="tracker-map-title">📍 Position de Léo en direct</div>
         <div id="trackerMap" style="height:250px;border-radius:14px;overflow:hidden;"></div>
@@ -516,6 +539,7 @@ socket.on('joined', ({ name, delegateLabel, isAdmin: admin }) => {
   document.getElementById('landing').style.display = 'none';
   document.getElementById('dashboard').style.display = 'block';
   requestNotifPerm();
+  updateNotifBtn();
   if (lastState) render(lastState);
 });
 
@@ -681,11 +705,12 @@ function updateTracker(step) {
     }
   }
 
-  // GPS : Léo partage sa position automatiquement en étape 2 (livraison)
+  // GPS toggle pour Léo : bouton manuel + statut
   if (isAdmin && step === 2) {
-    startLeoTracking();
+    showGpsToggle(true);
   } else if (isAdmin) {
     stopLeoTracking();
+    showGpsToggle(false);
   }
 
   // Cacher la carte si on n'est plus en livraison
@@ -695,12 +720,44 @@ function updateTracker(step) {
 }
 
 // ===== NOTIFICATIONS =====
-// Demande la permission dès que l'élève se connecte
+let notifEnabled = false;
 function requestNotifPerm() {
-  if ('Notification' in window && Notification.permission === 'default') {
-    Notification.requestPermission();
+  if (!('Notification' in window)) return;
+  if (Notification.permission === 'granted') { notifEnabled = true; updateNotifBtn(); return; }
+  if (Notification.permission === 'denied') { updateNotifBtn(); return; }
+}
+function askNotifPerm() {
+  if (!('Notification' in window)) { showToast('Notifications non supportées sur ce navigateur'); return; }
+  Notification.requestPermission().then(p => {
+    notifEnabled = p === 'granted';
+    updateNotifBtn();
+    if (notifEnabled) showToast('🔔 Notifications activées !');
+    else showToast('Notifications refusées');
+  });
+}
+function updateNotifBtn() {
+  const btn = document.getElementById('notifBtn');
+  if (!btn) return;
+  if (!('Notification' in window)) {
+    btn.textContent = '🔕 Non supporté';
+    btn.disabled = true;
+  } else if (Notification.permission === 'granted') {
+    btn.textContent = '🔔 Notifications activées';
+    btn.style.borderColor = '#4caf50';
+    btn.style.color = '#4caf50';
+    btn.style.background = '#e8f5e9';
+    btn.onclick = null;
+  } else if (Notification.permission === 'denied') {
+    btn.textContent = '🔕 Notifications bloquées (va dans les paramètres du navigateur)';
+    btn.style.borderColor = '#d32f2f';
+    btn.style.color = '#d32f2f';
+    btn.disabled = true;
+  } else {
+    btn.textContent = '🔔 Activer les notifications';
+    btn.onclick = askNotifPerm;
   }
 }
+
 const STEP_NOTIFS = [
   '📋 En attente de vos commandes de pizza !',
   '👨‍🍳 Les pizzas sont en cuisine ! Ça arrive bientôt...',
@@ -709,7 +766,8 @@ const STEP_NOTIFS = [
 ];
 socket.on('stepChanged', ({ step }) => {
   if ('Notification' in window && Notification.permission === 'granted') {
-    new Notification('Soirée Pizza 🍕', { body: STEP_NOTIFS[step], icon: '🍕' });
+    try { new Notification('Soirée Pizza 🍕', { body: STEP_NOTIFS[step], tag: 'pizza-step' }); }
+    catch(e) {}
   }
   showToast(STEP_NOTIFS[step]);
 });
@@ -718,24 +776,77 @@ socket.on('stepChanged', ({ step }) => {
 let leoMap = null;
 let leoMarker = null;
 let geoWatchId = null;
+let gpsActive = false;
+
+function showGpsToggle(show) {
+  const wrap = document.getElementById('gpsToggleWrap');
+  if (!wrap) return;
+  if (!show) { wrap.style.display = 'none'; return; }
+  wrap.style.display = 'flex';
+  updateGpsStatus();
+}
+
+function updateGpsStatus() {
+  const btn = document.getElementById('gpsToggleBtn');
+  const dot = document.getElementById('gpsDot');
+  if (!btn) return;
+  if (gpsActive) {
+    btn.textContent = '📍 GPS actif — Désactiver';
+    btn.style.borderColor = '#4caf50';
+    btn.style.background = '#e8f5e9';
+    btn.style.color = '#2e7d32';
+    btn.onclick = () => { stopLeoTracking(); updateGpsStatus(); };
+    if (dot) { dot.style.background = '#4caf50'; }
+  } else {
+    btn.textContent = '📍 Activer le GPS';
+    btn.style.borderColor = '#e0e0e8';
+    btn.style.background = 'white';
+    btn.style.color = 'var(--dark)';
+    btn.onclick = startLeoTracking;
+    if (dot) { dot.style.background = '#ccc'; }
+  }
+}
 
 function startLeoTracking() {
-  if (!navigator.geolocation) { showToast('GPS non disponible'); return; }
+  if (!navigator.geolocation) { showToast('GPS non disponible sur cet appareil'); return; }
   if (geoWatchId !== null) return;
-  geoWatchId = navigator.geolocation.watchPosition(
+
+  // D'abord demander la permission via getCurrentPosition
+  navigator.geolocation.getCurrentPosition(
     (pos) => {
+      // Permission ok, on lance le watch
       socket.emit('leoLocation', { lat: pos.coords.latitude, lng: pos.coords.longitude });
+      gpsActive = true;
+      updateGpsStatus();
+      showToast('📍 Partage GPS activé !');
+
+      geoWatchId = navigator.geolocation.watchPosition(
+        (p) => { socket.emit('leoLocation', { lat: p.coords.latitude, lng: p.coords.longitude }); },
+        (err) => {
+          showToast('GPS perdu : ' + err.message);
+          gpsActive = false;
+          updateGpsStatus();
+        },
+        { enableHighAccuracy: true, maximumAge: 3000, timeout: 10000 }
+      );
     },
-    (err) => { showToast('Erreur GPS : ' + err.message); },
-    { enableHighAccuracy: true, maximumAge: 5000 }
+    (err) => {
+      if (err.code === 1) showToast('📍 Tu dois autoriser le GPS dans ton navigateur !');
+      else if (err.code === 2) showToast('📍 Position indisponible');
+      else showToast('📍 Erreur GPS : ' + err.message);
+      gpsActive = false;
+      updateGpsStatus();
+    },
+    { enableHighAccuracy: true, timeout: 10000 }
   );
-  showToast('📍 Partage GPS activé !');
 }
+
 function stopLeoTracking() {
   if (geoWatchId !== null) {
     navigator.geolocation.clearWatch(geoWatchId);
     geoWatchId = null;
   }
+  gpsActive = false;
 }
 
 socket.on('leoLocation', ({ lat, lng }) => {
