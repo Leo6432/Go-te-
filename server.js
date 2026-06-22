@@ -32,6 +32,7 @@ const registeredNames = new Map();   // normalized -> displayName
 const nameToSocket = new Map();      // displayName -> socketId | null
 let pizzas = [];                     // [{ id, name, size, members: [displayName] }]
 let pizzaSeq = 1;
+let trackerStep = 0;                 // 0=attente, 1=cuisine, 2=livraison, 3=livrées
 
 // ===== PERSISTANCE (Upstash Redis) =====
 const REDIS_URL = process.env.UPSTASH_REDIS_REST_URL;
@@ -54,6 +55,7 @@ function snapshot() {
     registeredNames: Array.from(registeredNames.entries()),
     pizzas,
     pizzaSeq,
+    trackerStep,
   };
 }
 
@@ -63,6 +65,7 @@ function applySnapshot(data) {
   (data.registeredNames || []).forEach(([k, v]) => registeredNames.set(k, v));
   pizzas = data.pizzas || [];
   pizzaSeq = data.pizzaSeq || 1;
+  trackerStep = data.trackerStep || 0;
   nameToSocket.clear();
   registeredNames.forEach(displayName => nameToSocket.set(displayName, null));
 }
@@ -114,6 +117,7 @@ function getState() {
     sizePrice: SIZE_PRICE,
     sizeLabel: SIZE_LABEL,
     pizzas,
+    trackerStep,
     students: Array.from(registeredNames.values()),
     connected: activeCount(),
   };
@@ -208,6 +212,14 @@ io.on('connection', (socket) => {
 
     removeFromAllPizzas(displayName);
     pizza.members.push(displayName);
+    broadcastState();
+  });
+
+  // Admin : changer l'étape du tracker de livraison
+  socket.on('setTrackerStep', ({ step }) => {
+    if (normalize(socket.data.name || '') !== ADMIN_KEY) return;
+    if (typeof step !== 'number' || step < 0 || step > 3) return;
+    trackerStep = step;
     broadcastState();
   });
 

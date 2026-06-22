@@ -290,6 +290,17 @@
   }
   .tracker-step:first-child::before { display: none; }
   .tracker-step.done::before, .tracker-step.active::before { background: var(--pizza); }
+  .tracker-admin {
+    display: flex; gap: 6px; margin-top: 16px; padding-top: 14px;
+    border-top: 1px solid #eee; flex-wrap: wrap;
+  }
+  .tracker-admin-btn {
+    flex: 1; min-width: 70px; padding: 10px 6px; border-radius: 12px;
+    border: 2px solid #e0e0e8; background: white; font-weight: 700;
+    font-size: 0.7rem; cursor: pointer; transition: all .2s; text-align: center;
+  }
+  .tracker-admin-btn:hover { border-color: var(--pizza); }
+  .tracker-admin-btn.current { border-color: var(--pizza); background: var(--pizza-light); color: var(--pizza); }
 
   /* ===== MENU CARTE ===== */
   .menu-cats {
@@ -385,6 +396,7 @@
           <div class="ts-label">Pizzas livrées !</div>
         </div>
       </div>
+      <div class="tracker-admin" id="trackerAdmin" style="display:none;"></div>
     </div>
 
     <div class="section-title">📋 La carte ShowPizz</div>
@@ -501,7 +513,6 @@ socket.on('state', (state) => {
   lastState = state;
   buildSizeGrid(state);
   if (myName) render(state);
-  else document.getElementById('statConnected').textContent = state.connected;
 });
 socket.on('groupError', ({ message }) => showToast(message));
 
@@ -528,7 +539,7 @@ function buildSizeGrid(state) {
 
 // Render
 function render(state) {
-  updateTracker();
+  updateTracker(state.trackerStep);
 
   const myPizza = state.pizzas.find(p => p.members.includes(myName));
 
@@ -617,41 +628,39 @@ document.getElementById('modalInput').addEventListener('keydown', e => {
   if (e.key==='Escape') closeModal();
 });
 
-// ===== TRACKER LIVRAISON (style Deliveroo) =====
-// Étape 0: En attente (> 2h avant)
-// Étape 1: En cuisine (entre 2h et 30min avant)
-// Étape 2: Léo et Tom en livraison (entre 30min et 0)
-// Étape 3: Livrées ! (heure passée)
-function updateTracker() {
-  const EVENT = new Date(2026, 5, 23, 18, 30, 0);
-  const now = new Date();
-  const diff = EVENT - now;
-  const mins = diff / 60000;
+// ===== TRACKER LIVRAISON (piloté par le serveur, modifiable par Léo) =====
+const STEP_LABELS = ['Commande en cours', 'En cuisine', 'En livraison', 'Livrées !'];
+const STEP_PCT = [8, 33, 66, 100];
 
-  let step;
-  let pct;
-  let eta;
-  if (diff <= 0) {
-    step = 3; pct = 100; eta = 'Livrées !';
-  } else if (mins <= 30) {
-    step = 2; pct = 62 + (1 - mins/30) * 25; eta = `~ ${Math.ceil(mins)} min`;
-  } else if (mins <= 120) {
-    step = 1; pct = 25 + (1 - (mins-30)/90) * 37; eta = `En cuisine`;
-  } else {
-    step = 0; pct = Math.min(25, 25 * (1 - Math.min(diff / (48*3600000), 1))); eta = 'Commande en cours';
-  }
-
-  document.getElementById('trackerFill').style.width = pct + '%';
-  document.getElementById('trackerEta').textContent = eta;
+function updateTracker(step) {
+  if (typeof step !== 'number') step = 0;
+  document.getElementById('trackerFill').style.width = STEP_PCT[step] + '%';
+  document.getElementById('trackerEta').textContent = STEP_LABELS[step];
   for (let i = 0; i < 4; i++) {
     const el = document.getElementById('ts' + i);
     el.classList.remove('active', 'done');
     if (i < step) el.classList.add('done');
     else if (i === step) el.classList.add('active');
   }
+
+  // Boutons admin pour Léo
+  const box = document.getElementById('trackerAdmin');
+  if (box) {
+    if (isAdmin) {
+      box.style.display = 'flex';
+      box.innerHTML = '';
+      ['📋 Attente', '👨‍🍳 Cuisine', '🛵 Livraison', '✅ Livrées'].forEach((label, i) => {
+        const btn = document.createElement('button');
+        btn.className = 'tracker-admin-btn' + (i === step ? ' current' : '');
+        btn.textContent = label;
+        btn.onclick = () => socket.emit('setTrackerStep', { step: i });
+        box.appendChild(btn);
+      });
+    } else {
+      box.style.display = 'none';
+    }
+  }
 }
-updateTracker();
-setInterval(updateTracker, 30000);
 
 // ===== MENU SHOWPIZZ =====
 const MENU = [
