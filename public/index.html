@@ -439,25 +439,6 @@
       </div>
     </div>
 
-    <div class="section-title">📋 La carte ShowPizz</div>
-    <div id="menuSection" style="margin-bottom:28px;">
-      <div class="menu-cats">
-        <button class="menu-tab sel" onclick="showCat(this,'all')">Toutes</button>
-        <button class="menu-tab" onclick="showCat(this,'retro')">Rétro</button>
-        <button class="menu-tab" onclick="showCat(this,'street')">Street</button>
-        <button class="menu-tab" onclick="showCat(this,'exquizz')">Exquizz</button>
-        <button class="menu-tab" onclick="showCat(this,'cheezy')">Cheezy</button>
-      </div>
-      <div class="menu-grid" id="menuGrid"></div>
-    </div>
-
-    <div class="section-title">➕ Créer une pizza</div>
-    <div class="create-card" id="createCard">
-      <input id="pizzaNameInput" type="text" placeholder="Nom de la pizza (ex: Reine, 4 Fromages...)" maxlength="40" autocomplete="off"/>
-      <div class="size-grid" id="sizeGrid"></div>
-      <button class="btn-join" onclick="createPizza()">🍕 Créer cette pizza</button>
-    </div>
-
     <div class="section-title">🍕 Les pizzas</div>
     <div id="pizzasContainer"></div>
 
@@ -583,17 +564,11 @@ function buildSizeGrid(state) {
 function render(state) {
   updateTracker(state.trackerStep);
 
-  const myPizza = state.pizzas.find(p => p.members.includes(myName));
-
   const c = document.getElementById('pizzasContainer');
   c.innerHTML = '';
-  if (state.pizzas.length === 0) {
-    c.innerHTML = '<p style="color:#aaa;font-style:italic;margin-bottom:20px;">Aucune pizza créée pour l\'instant… Sois le premier !</p>';
-  }
   state.pizzas.forEach(pizza => {
-    const isMine = myPizza && myPizza.id === pizza.id;
+    const isMine = pizza.members.includes(myName);
     const max = state.sizeMax[pizza.size] || 4;
-    const isFull = pizza.members.length >= max && !isMine;
 
     const card = document.createElement('div');
     card.className = 'pizza-card' + (isMine ? ' mine' : '');
@@ -603,15 +578,8 @@ function render(state) {
       membersHtml += `<li class="member-row"><span>•</span><span>${esc(m)}</span></li>`;
     });
 
-    const btnHtml = isMine
-      ? `<button class="btn-join leave" onclick="leavePizza()">← Quitter cette pizza</button>`
-      : isFull
-        ? `<button class="btn-join" disabled style="opacity:0.45;cursor:not-allowed;">🔒 Complète (${max}/${max})</button>`
-        : `<button class="btn-join" onclick="joinPizza(${pizza.id})">→ Rejoindre</button>`;
-
-    const adminBtn = isAdmin
-      ? `<button class="btn-join" style="background:var(--blue);margin-top:10px;" onclick="askAdminAdd(${pizza.id})">+ Ajouter un élève</button>
-         <button class="btn-join" style="background:#d32f2f;margin-top:8px;" onclick="deletePizza(${pizza.id})">🗑️ Supprimer ce groupe</button>`
+    const noteHtml = pizza.name.toLowerCase().includes('norvégienne') || pizza.name.toLowerCase().includes('norvegienne')
+      ? `<div style="margin-top:10px;padding:8px 12px;background:#fff8e1;border-radius:10px;font-size:0.8rem;color:#6d4c00;border:1px solid #ffe082;">📝 Est-ce que vous pourrez demander à ce qu'il n'y ait que la moitié de la pizza avec le fromage à raclette</div>`
       : '';
 
     card.innerHTML = `
@@ -620,8 +588,7 @@ function render(state) {
       <div class="pizza-name">${esc(pizza.name)}</div>
       <div class="pizza-size">${esc(pizza.size)} · ${state.sizePrice[pizza.size]} · ${pizza.members.length}/${max} pers.</div>
       <ul class="members-list">${membersHtml}</ul>
-      ${btnHtml}
-      ${adminBtn}
+      ${noteHtml}
     `;
     c.appendChild(card);
   });
