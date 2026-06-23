@@ -470,7 +470,6 @@ let myName = null;
 let lastState = null;
 let isDelegate = false;
 let isAdmin = false;
-// selectedSize initialisé dans buildSizeGrid
 
 // Background emojis
 (function() {
@@ -534,31 +533,9 @@ function logout() {
 // State
 socket.on('state', (state) => {
   lastState = state;
-  buildSizeGrid(state);
   if (myName) render(state);
 });
 socket.on('groupError', ({ message }) => showToast(message));
-
-// Size selector
-let selectedSize = null;
-function buildSizeGrid(state) {
-  const g = document.getElementById('sizeGrid');
-  if (g.children.length) return;
-  if (!selectedSize) selectedSize = state.sizes[1] || state.sizes[0];
-  (state.sizes || []).forEach(s => {
-    const price = state.sizePrice[s];
-    const label = state.sizeLabel[s];
-    const d = document.createElement('div');
-    d.className = 'size-opt' + (s === selectedSize ? ' sel' : '');
-    d.innerHTML = `${s}<small>${price} · ${label}</small>`;
-    d.onclick = () => {
-      selectedSize = s;
-      g.querySelectorAll('.size-opt').forEach(x => x.classList.remove('sel'));
-      d.classList.add('sel');
-    };
-    g.appendChild(d);
-  });
-}
 
 // Render
 function render(state) {
@@ -602,19 +579,6 @@ function render(state) {
     grid.appendChild(chip);
   });
 }
-
-// Actions
-function createPizza() {
-  const name = document.getElementById('pizzaNameInput').value.trim();
-  if (!name) { showToast('Donne un nom à la pizza !'); return; }
-  socket.emit('createPizza', { name, size: selectedSize });
-  document.getElementById('pizzaNameInput').value = '';
-}
-document.getElementById('pizzaNameInput').addEventListener('keydown', e => { if (e.key==='Enter') createPizza(); });
-
-function joinPizza(id) { socket.emit('joinPizza', { pizzaId: id }); }
-function leavePizza() { socket.emit('leavePizza'); }
-function deletePizza(id) { socket.emit('deletePizza', { pizzaId: id }); }
 
 // Admin modal
 let adminPizzaId = null;
@@ -855,68 +819,6 @@ socket.on('leoLocation', ({ lat, lng }) => {
   }
 
 });
-
-// ===== MENU SHOWPIZZ =====
-const MENU = [
-  { cat:'retro', name:'Bergère', desc:'Crème, Lard Fumé, Tomates cerises, Chèvre, Mozzarella, Miel' },
-  { cat:'retro', name:'Calzone', desc:'Tomate, Jambon, Champignons, Œuf, Crème, Emmental' },
-  { cat:'retro', name:'Chèvre-Miel', desc:'Crème, Poulet, Chèvre, Mozzarella, Miel' },
-  { cat:'retro', name:'Flammekueche', desc:'Crème, Champignons, Oignons, Lardons, Mozzarella' },
-  { cat:'retro', name:'Margherita', desc:'Tomate, Olives, Mozzarella fraîche, Emmental, Basilic frais' },
-  { cat:'retro', name:'Napoli', desc:'Tomate, Champignons, Jambon, Œuf, Mozzarella' },
-  { cat:'retro', name:'Reine', desc:'Tomate, Jambon, Mozzarella' },
-  { cat:'retro', name:'Végétarienne', desc:'Tomate, Champignons, Poivrons, Oignons, Tomates cerises, Olives, Basilic' },
-  { cat:'street', name:"Bib'z", desc:'Tomate, Bœuf haché, Lard fumé, Cheddar, Mozzarella, Oignons frits, Sauce BBQ' },
-  { cat:'street', name:'Burger', desc:'Crème, Oignons, Bœuf haché, Cheddar, Mozzarella, Sauce Burger' },
-  { cat:'street', name:"Chaud'rizo", desc:'Tomate, Chorizo, Origan, Parmesan, Mozzarella fraîche' },
-  { cat:'street', name:'Crispy Chicken', desc:'Tomate, Pommes de terre, Poulet épicé, Chorizo, Oignons frits, Raclette, Sauce BBQ' },
-  { cat:'street', name:'Double Cheese', desc:'Tomate, Bœuf haché, Cheddar, Emmental, Crème, Sauce Burger' },
-  { cat:'street', name:'Fermière', desc:'Crème, Champignons, Œuf, Poulet, Mozzarella' },
-  { cat:'street', name:'Kanibal', desc:'Crème, Merguez, Poulet, Bœuf haché, Oignons, Olives, Cheddar, Sauce BBQ' },
-  { cat:'street', name:'La Mayennaise', desc:'Crème, Poulet, Oignons, Œuf, Mozzarella, Cheddar, Sauce Samouraï' },
-  { cat:'street', name:'Show Pizz', desc:'Tomate, Oignons, Champignons, Jambon, Chorizo, Lardons, Œuf, Crème, Mozzarella' },
-  { cat:'exquizz', name:'Baltique', desc:'Tomate, Saumon, Thon, Crème, Mozzarella' },
-  { cat:'exquizz', name:'Java', desc:'Crème, Jambon, Bacon, Lardons, Pommes de terre, Raclette, Reblochon, Mozzarella' },
-  { cat:'exquizz', name:'La Gervaise', desc:'Tomate, Tomates cerises, Saumon, Chèvre, Origan, Mozzarella, Basilic' },
-  { cat:'exquizz', name:'Norvégienne', desc:'Crème, Pommes de terre, Saumon, Raclette, Mozzarella' },
-  { cat:'exquizz', name:'La Pesto', desc:'Crème, Poulet, Tomates cerises, Sauce Pesto, Parmesan, Mozzarella, Basilic' },
-  { cat:'exquizz', name:"L'Italienne", desc:"Tomate, Tomates cerises, Sauce Pesto, Huile d'olive, Mozzarella fraîche, Parmesan, Basilic" },
-  { cat:'exquizz', name:'Tonno Pesto', desc:'Tomate, Poivrons, Olives, Thon, Parmesan, Mozzarella, Sauce Pesto' },
-  { cat:'cheezy', name:'6 Fromages', desc:'Crème, Camembert, Reblochon, Bleu, Chèvre, Parmesan, Mozzarella' },
-  { cat:'cheezy', name:'Buffalo', desc:'Tomate, Bœuf haché, Chorizo, Poivrons, Oignons, Mozzarella' },
-  { cat:'cheezy', name:'Forestière', desc:'Crème, Pommes de terre, Champignons, Lard fumé, Camembert, Poivre noir, Mozzarella' },
-  { cat:'cheezy', name:'Tartiflette', desc:'Crème, Pommes de terre, Lardons, Reblochon, Mozzarella' },
-  { cat:'cheezy', name:'Montagnarde', desc:'Crème, Champignons, Oignons, Jambon, Chorizo, Raclette, Mozzarella' },
-  { cat:'cheezy', name:'Raclette', desc:'Tomate, Pommes de terre, Jambon, Bacon, Raclette, Mozzarella' },
-  { cat:'cheezy', name:'Touareg', desc:'Crème, Merguez, Tomates cerises, Olives, Reblochon, Mozzarella' },
-];
-const CAT_LABELS = { retro:'Rétro', street:'Street', exquizz:'Exquizz', cheezy:'Cheezy' };
-const CAT_COLORS = { retro:'#c62828', street:'#e65100', exquizz:'#2e7d32', cheezy:'#f9a825' };
-let currentCat = 'all';
-
-function buildMenu() {
-  const grid = document.getElementById('menuGrid');
-  grid.innerHTML = '';
-  const items = currentCat === 'all' ? MENU : MENU.filter(m => m.cat === currentCat);
-  items.forEach(m => {
-    const d = document.createElement('div');
-    d.className = 'menu-item';
-    d.innerHTML = `<div class="mi-name">${esc(m.name)}</div><div class="mi-desc">${esc(m.desc)}</div><span class="mi-cat" style="background:${CAT_COLORS[m.cat]}">${CAT_LABELS[m.cat]}</span>`;
-    d.onclick = () => {
-      document.getElementById('pizzaNameInput').value = m.name;
-      document.getElementById('pizzaNameInput').scrollIntoView({ behavior:'smooth', block:'center' });
-      showToast(`"${m.name}" sélectionnée — choisis la taille et crée !`);
-    };
-    grid.appendChild(d);
-  });
-}
-function showCat(btn, cat) {
-  currentCat = cat;
-  document.querySelectorAll('.menu-tab').forEach(b => b.classList.remove('sel'));
-  btn.classList.add('sel');
-  buildMenu();
-}
-buildMenu();
 
 // Countdown
 (function() {
